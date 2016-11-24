@@ -10,13 +10,6 @@
 MDNSResponder mdns;
 ESP8266WebServer server(80);
 // WiFiUDP Udp;
-// register events
-// WiFiEventHandler onSoftAPModeStationConnected;
-// WiFiEventHandler onSoftAPModeStationDisconnected;
-
-/**
-  Start the device in access point mode and serve a small webapp for configuration
-*/
 
 void serveFile(const char *filepath, const char *doctype = "text/html") {
   if (! SPIFFS.exists(filepath)) {
@@ -50,54 +43,58 @@ void reboot() {
   ESP.restart();
 }
 
-void clearEEPROM() {
+void clearCredentials() {
   //empty eeprom contents
   for (int i = 0; i < 96; ++i) {
     EEPROM.write(i, 0);
   }
 
-  EEPROM.commit();
+  if (EEPROM.commit()) {
+    server.send(200,"text/plain","Device eeprom cleared");
+  } else {
+    server.send(500,"text/plain","Error clearing eeprom");
+  }
+
 }
 
 void announce() {
   //send a broadcast message attempting to reach the server to begin handshake
+  //message prototype: device_id, device_ip, device_name
+  //
 
 }
 
 void setupAP() {
   //check post params exist
   if(server.hasArg("pwd") && server.hasArg("ssid")) {
-
-    clearEEPROM();
+    clearCredentials();
 
     Serial.println("writing eeprom ssid:");
     for (int i = 0; i < server.arg("ssid").length(); ++i) {
       EEPROM.write(i, server.arg("ssid")[i]);
       Serial.print("Wrote: ");
-      Serial.println(server.arg("ssid")[i]);
+      Serial.print(server.arg("ssid")[i]);
     }
 
     Serial.println("writing eeprom pass:");
     for (int i = 0; i < server.arg("pwd").length(); ++i) {
       EEPROM.write(32+i, server.arg("pwd")[i]);
-      Serial.print("Wrote: ");
-      Serial.println(server.arg("pwd")[i]);
+      Serial.println("Wrote: ");
+      Serial.print(server.arg("pwd")[i]);
     }
-
 
     EEPROM.commit();
     //return json success
     server.send(200, "application/json", "{message:'settings stored'}");
-
   } else {
     //return json error
     server.send(400, "application/json", "{message:'Invalid params'}");
   }
 }
 
-
-
 void beginAP() {
+  WiFi.mode(WIFI_AP);
+
   #if AP_USE_PWD
     WiFi.softAP(AP_SSID, AP_PWD);
   #else
@@ -121,27 +118,9 @@ void beginAP() {
 }
 
 
-bool beginST(const char* ssid,const char* pwd) {
+bool beginST() {
+  WiFi.mode(WIFI_STA);
   int attempts = 0;
-
-  while (WiFi.status() != WL_CONNECTED && attempts < CONN_RETRIES) { //wait until we connect
-    WiFi.begin ( ssid, pwd );
-    attempts++;
-    delay(ST_CONN_TIMEOUT);
-    Serial.println("Station connection attempt failed, retrying");
-  }
-
-  //are we connected yet ?
-  if (WiFi.status() != WL_CONNECTED)
-    return false;
-
-  return true;
-}
-
-void setup ( void ) {
-  Serial.begin(115200);
-  SPIFFS.begin();
-  delay(5000);
 
   String pwd = "";
   String ssid = "";
@@ -155,28 +134,52 @@ void setup ( void ) {
     pwd += char(EEPROM.read(i));
   }
 
-  if (!beginST(ssid.c_str(), pwd.c_str())) {
+  while (WiFi.status() != WL_CONNECTED && attempts < CONN_RETRIES) { //wait until we connect
+    WiFi.begin ( ssid.c_str(), pwd.c_str() );
+    attempts++;
+    delay(ST_CONN_TIMEOUT);
+    Serial.println("Station connection attempt failed, retrying");
+  }
+
+  //are we connected yet ?
+  if (WiFi.status() != WL_CONNECTED)
+    return false;
+
+  Serial.println("Station startup successful");
+  WiFi.printDiag(Serial);
+
+  if (mdns.begin (ST_DEVICE_NAME, WiFi.localIP() ) ) {
+    Serial.print ( "MDNS responder started" );
+  }
+
+  //setup basic endpoints
+  server.on("/clear", clearCredentials); //endpoint for clearing ssid / pwd
+  server.on("/descriptor" , descriptor); //endpoint for serving the descriptor
+  server.on("/announce" , announce); //request device to announce itself
+  server.on("/reboot", reboot); //reboot the device
+  server.on("/update", setup); //update descriptor info
+
+  server.begin();
+
+  //announce this device
+  announce();
+
+  return true;
+}
+
+void setup ( void ) {
+  Serial.begin(115200);
+  SPIFFS.begin();
+  EEPROM.begin(512);
+  delay(5000);
+
+  if (!beginST()) {
     Serial.println("Station startup failed, going into AP mode");
     beginAP();
   } else {
-    Serial.println("Station startup successful");
-    WiFi.printDiag(Serial);
-
-    if (mdns.begin (ST_DEVICE_NAME, WiFi.localIP() ) ) {
-      Serial.println ( "MDNS responder started" );
-    }
-
-    //setup basic endpoints
-    server.on("/clear", clearEEPROM); //endpoint for clearing ssid / pwd
-    server.on("/descriptor" , descriptor); //endpoint for serving the descriptor
-    server.on("/announce" , announce);
-    server.on("/reboot", reboot);
-    server.on("/update", setup);
-    //setup module
-
+    //TODO:: implement actual device logic (strip control, coffee table, etc);
   }
 }
-
 
 void loop ( void ) {
   mdns.update();
