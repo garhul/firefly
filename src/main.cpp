@@ -43,18 +43,17 @@ void reboot() {
   ESP.restart();
 }
 
+
 void clearCredentials() {
-  //empty eeprom contents
   for (int i = 0; i < 96; ++i) {
-    EEPROM.write(i, 0);
+    EEPROM.write(i, 1);
   }
 
   if (EEPROM.commit()) {
-    server.send(200,"text/plain","Device eeprom cleared");
+    server.send(200,"application/json","{message:'Device eeprom cleared'}");
   } else {
-    server.send(500,"text/plain","Error clearing eeprom");
+    server.send(500,"text/plain","{message:'Error clearing eeprom'}");
   }
-
 }
 
 void announce() {
@@ -67,20 +66,18 @@ void announce() {
 void setupAP() {
   //check post params exist
   if(server.hasArg("pwd") && server.hasArg("ssid")) {
-    clearCredentials();
+    //first we clear everything
+    for (int i = 0; i < 96; ++i) {
+      EEPROM.write(i, 0);
+    }
+    EEPROM.commit();
 
-    Serial.println("writing eeprom ssid:");
     for (int i = 0; i < server.arg("ssid").length(); ++i) {
       EEPROM.write(i, server.arg("ssid")[i]);
-      Serial.print("Wrote: ");
-      Serial.print(server.arg("ssid")[i]);
     }
 
-    Serial.println("writing eeprom pass:");
     for (int i = 0; i < server.arg("pwd").length(); ++i) {
       EEPROM.write(32+i, server.arg("pwd")[i]);
-      Serial.println("Wrote: ");
-      Serial.print(server.arg("pwd")[i]);
     }
 
     EEPROM.commit();
@@ -135,6 +132,10 @@ bool beginST() {
   }
 
   while (WiFi.status() != WL_CONNECTED && attempts < CONN_RETRIES) { //wait until we connect
+    Serial.println("creds...");
+    Serial.println(ssid.c_str());
+    Serial.println(pwd.c_str());
+
     WiFi.begin ( ssid.c_str(), pwd.c_str() );
     attempts++;
     delay(ST_CONN_TIMEOUT);
@@ -169,8 +170,9 @@ bool beginST() {
 
 void setup ( void ) {
   Serial.begin(115200);
+  EEPROM.begin(EEPROM_SIZE);
   SPIFFS.begin();
-  EEPROM.begin(512);
+  WiFi.persistent(false);
   delay(5000);
 
   if (!beginST()) {

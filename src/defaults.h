@@ -8,4 +8,5 @@
 #define ST_DEVICE_NAME "firefly"
 #define ST_CONN_TIMEOUT 10000
 #define ST_ANNOUNCE_PORT 3001
-#define MDNS_DEBUG_RX TRUE;
+#define MDNS_DEBUG_RX TRUE
+#define EEPROM_SIZE 512

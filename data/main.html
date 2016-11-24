@@ -2,162 +2,134 @@
 <head>
   <title>Device Configuration</title>
   <style type="text/css">
-  body {
-    background:#333;
-  }
-  .form {
-   border: 1px solid #f2e3d2;
-   vertical-align: middle;
-   background: #c9b7a2;
-   background: -webkit-gradient(linear, left top, left bottom, from(#f2e3d2), to(#c9b7a2));
-   background: -webkit-linear-gradient(top, #f2e3d2, #c9b7a2);
-   background: -moz-linear-gradient(top, #f2e3d2, #c9b7a2);
-   background: -ms-linear-gradient(top, #f2e3d2, #c9b7a2);
-   background: -o-linear-gradient(top, #f2e3d2, #c9b7a2);
-   background-image: -ms-linear-gradient(top, #f2e3d2 0%, #c9b7a2 100%);
-   -webkit-border-radius: 8px;
-   -moz-border-radius: 8px;
-   border-radius: 8px;
-   -webkit-box-shadow: rgba(000,000,000,0.9) 0 1px 2px, inset rgba(255,255,255,0.4) 0 0px 0;
-   -moz-box-shadow: rgba(000,000,000,0.9) 0 1px 2px, inset rgba(255,255,255,0.4) 0 0px 0;
-   box-shadow: rgba(000,000,000,0.9) 0 1px 2px, inset rgba(255,255,255,0.4) 0 0px 0;
-   font-family: 'Helvetica Neue',Helvetica,sans-serif;
-   text-decoration: none;
-   min-width:300px;
-   padding:20px;
-   width:300px;
-   margin:0 auto;
-   }
-.form input {
-   border: 1px solid #c9b7a2;
-   background: #e4d5c3;
-   -webkit-border-radius: 4px;
-   -moz-border-radius: 4px;
-   border-radius: 4px;
-   color: #c9b7a2;
-   -webkit-box-shadow: rgba(255,255,255,0.4) 0 1px 0, inset rgba(000,000,000,0.7) 0 0px 0px;
-   -moz-box-shadow: rgba(255,255,255,0.4) 0 1px 0, inset rgba(000,000,000,0.7) 0 0px 0px;
-   box-shadow: rgba(255,255,255,0.4) 0 1px 0, inset rgba(000,000,000,0.7) 0 0px 0px;
-   padding:8px;
-   margin-bottom:20px;
-   width:280px;
-   margin:1em;
-   }
-.form input:focus {
-   background: #fff;
-   color: #725129;
-   }
-.form h2 {
-   text-shadow: #fdf2e4 0 1px 0;
-   font-size:18px;
-   margin: 0 0 10px 0;
-   font-weight:bold;
-   text-align:center;
+    body {
+      background:#333;
+      margin:0;
+      padding:0;
+      font-family:arial;
     }
-.form-title {
-   margin-bottom:10px;
-   color: #725129;
-   text-shadow: #fdf2e4 0 1px 0;
-   }
-.submit-container {
-   text-align:center;
-   }
-.submit-button {
-   border: 1px solid #447314;
-   background: #6aa436;
-   background: -webkit-gradient(linear, left top, left bottom, from(#8dc059), to(#6aa436));
-   background: -webkit-linear-gradient(top, #8dc059, #6aa436);
-   background: -moz-linear-gradient(top, #8dc059, #6aa436);
-   background: -ms-linear-gradient(top, #8dc059, #6aa436);
-   background: -o-linear-gradient(top, #8dc059, #6aa436);
-   background-image: -ms-linear-gradient(top, #8dc059 0%, #6aa436 100%);
-   -webkit-border-radius: 4px;
-   -moz-border-radius: 4px;
-   border-radius: 4px;
-   -webkit-box-shadow: rgba(255,255,255,0.4) 0 1px 0, inset rgba(255,255,255,0.4) 0 1px 0;
-   -moz-box-shadow: rgba(255,255,255,0.4) 0 1px 0, inset rgba(255,255,255,0.4) 0 1px 0;
-   box-shadow: rgba(255,255,255,0.4) 0 1px 0, inset rgba(255,255,255,0.4) 0 1px 0;
-   text-shadow: #addc7e 0 1px 0;
-   color: #999;
-   font-family: helvetica, serif;
-   padding: 8.5px 18px;
-   font-size: 14px;
-   text-decoration: none;
-   vertical-align: middle;
-   }
-.submit-button:hover {
-   border: 1px solid #447314;
-   text-shadow: #31540c 0 1px 0;
-   background: #6aa436;
-   background: -webkit-gradient(linear, left top, left bottom, from(#8dc059), to(#6aa436));
-   background: -webkit-linear-gradient(top, #8dc059, #6aa436);
-   background: -moz-linear-gradient(top, #8dc059, #6aa436);
-   background: -ms-linear-gradient(top, #8dc059, #6aa436);
-   background: -o-linear-gradient(top, #8dc059, #6aa436);
-   background-image: -ms-linear-gradient(top, #8dc059 0%, #6aa436 100%);
-   color: #fff;
-   }
-.submit-button:active {
-   text-shadow: #31540c 0 1px 0;
-   border: 1px solid #447314;
-   background: #8dc059;
-   background: -webkit-gradient(linear, left top, left bottom, from(#6aa436), to(#6aa436));
-   background: -webkit-linear-gradient(top, #6aa436, #8dc059);
-   background: -moz-linear-gradient(top, #6aa436, #8dc059);
-   background: -ms-linear-gradient(top, #6aa436, #8dc059);
-   background: -o-linear-gradient(top, #6aa436, #8dc059);
-   background-image: -ms-linear-gradient(top, #6aa436 0%, #8dc059 100%);
-   color: #fff;
-   }
+    .form {
+      margin-top:8em;
+      padding:1em;
+      background: #222;
+      border-top:1px solid #000;
+      border-bottom:1px solid #444;
+      text-align:center;
+      color:#999;
+    }
+
+    .form input {
+      border: 1px solid #333;
+      background: #111;
+      border-radius: .5em;
+      color: #999;
+      padding:.5em;
+    }
+
+    .form input:focus {
+      background: #000;
+      color: #BBB;
+      outline:none;
+      border-color: #444;
+    }
+
+    .form h2 {
+     text-shadow: #000 0 1px 0;
+     font-size:18px;
+     margin: 0 0 10px 0;
+     font-weight:bold;
+     text-align:center;
+     color:#BBB;
+    }
+    button {
+      border:1px solid #7788aa;
+      background-color: #0099ff;
+      background: linear-gradient(#0099ff,#0066ff);
+      color:#eee;
+      text-shadow: #000 1px 1px 1px;
+      font-weight:bold;
+      padding:.75em;
+      border-radius:.5em;
+      cursor:pointer;
+      margin-top:2em;
+      outline:none;
+      margin:2em auto;
+    }
+    #success {
+      color:#25d225;
+      display:none;
+    }
+    span {
+      color:#999;
+      font-size:.8em;
+    }
+    #error {
+      color:#d22525;
+      display:none;
+    }
   </style>
   <script>
+
+    function $(id) {
+      return document.getElementById(id);
+    }
+
     function sb() {
+      //disable button for the duration of the request
+      $("submit").style.display = "none";
+      $("error").style.display = "none";
+      var pwd = $("pwd_input").value;
+      var ssid = $("ssid_input").value;
+
       var http = new XMLHttpRequest();
       var url = "setup";
-      var params = "pwd=" + document.getElementById("pwd_input").value + "&ssid=" + document.getElementById("ssid_input").value;
-      http.open("POST", url, true);
 
-      //Send the proper header information along with the request
-      http.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-
-      http.onreadystatechange = function() {
-        //Call a function when the state changes.
-        if(http.readyState == 4 && http.status == 200) {
-          //show success message
-          alert(http.message);
-          //send reboot command
-        } else if (http.readyState == 4 && http.status != 200) {
-          //show error message
-        }
+      if (pwd.length == 0 || ssid.length == 0) {
+        alert("Password and SSID are required");
+        $("submit").style.display = "block";
+        return false;
       }
 
+      var params = "pwd=" + pwd + "&ssid=" + ssid;
+      http.open("POST", url, true);
+
+      http.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+      http.onreadystatechange = function() {
+        if(http.readyState == 4 && http.status == 200) {
+          $("success").style.display="block";
+          window.setTimeout(function(){
+            window.location.href="/reboot";
+          }, 5000);
+        } else if (http.readyState == 4 && http.status != 200) {
+            $("error").style.display="block";
+            $("submit").style.display="block";
+          }
+        }
       http.send(params);
       return false;
     }
   </script>
-
 </head>
 <body>
     <div class="form">
-      <div class="form-tite"><h2>Network Setup</h2></div>
-      <label for="ssid">Network SSID:</label>
-      <input id="ssid_input" type="text" name="ssid"/>
-
-      <label for"pwd">Network password:</label>
-      <input id="pwd_input" type="password" name="pwd"/>
-      <div class="submit-container">
-        <button onclick="sb()" class="submit-button">Save and reboot</button>
+      <h2>Network Setup</h2>
+      <p>
+        <label for="ssid">Network SSID:</label><br/>
+        <input id="ssid_input" type="text" name="ssid"/>
+      </p>
+      <p>
+        <label for"pwd">Network password:</label><br/>
+        <input id="pwd_input" type="password" name="pwd"/>
+      </p>
+      <div id="error">
+        <strong>Unable to store network credentials</strong><br/>
+        <span>check credentials and try again</span>
       </div>
-    </div>
-
-    <div class="error">
-      <h2>Unable to store network credentials</h2>
-      <span></span>
-    </div>
-
-    <div class="success">
-      <h2>Success updating network credentials</h2>
-      <span>Device will reboot to join wifi shortly</span>
+      <div id="success">
+        <strong>Success updating network credentials</strong><br/>
+        <span>Device will reboot to join wifi shortly</span>
+      </div>
+      <button onclick="sb()" id="submit">Save and reboot</button>
     </div>
 </body>
 </html>
