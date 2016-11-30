@@ -1,4 +1,6 @@
 {
-  "name":"pepe",
-  "id":"argento"
+  "name":"firefly-",
+  "id":"",
+  "type":"firefly-led-strip",
+  "channles":"16"
 }

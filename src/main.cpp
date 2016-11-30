@@ -7,9 +7,12 @@
 #include <FS.h>
 #include <EEPROM.h>
 
+#include <NeoPixelBus.h>
+#include <Strip.h>
+StripController Leds;
+
 MDNSResponder mdns;
 ESP8266WebServer server(80);
-// WiFiUDP Udp;
 
 void serveFile(const char *filepath, const char *doctype = "text/html") {
   if (! SPIFFS.exists(filepath)) {
@@ -114,8 +117,8 @@ void beginAP() {
   }
 }
 
-
 bool beginST() {
+  Serial.println("starting station mode");
   WiFi.mode(WIFI_STA);
   int attempts = 0;
 
@@ -129,6 +132,13 @@ bool beginST() {
 
   for (int i = 32; i < 96; ++i) {
     pwd += char(EEPROM.read(i));
+  }
+
+  //if we are already connected:
+  if (WiFi.status() == WL_CONNECTED) {
+    //dsconnect and wait
+    WiFi.disconnect(false);
+    delay(5000);
   }
 
   while (WiFi.status() != WL_CONNECTED && attempts < CONN_RETRIES) { //wait until we connect
@@ -173,17 +183,20 @@ void setup ( void ) {
   EEPROM.begin(EEPROM_SIZE);
   SPIFFS.begin();
   WiFi.persistent(false);
+
   delay(5000);
 
   if (!beginST()) {
     Serial.println("Station startup failed, going into AP mode");
     beginAP();
   } else {
-    //TODO:: implement actual device logic (strip control, coffee table, etc);
+    //initialize device controller
+    Leds.begin();
   }
 }
 
 void loop ( void ) {
   mdns.update();
   server.handleClient();
+  Leds.service();
 }

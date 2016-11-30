@@ -10,3 +10,6 @@
 #define ST_ANNOUNCE_PORT 3001
 #define MDNS_DEBUG_RX TRUE
 #define EEPROM_SIZE 512
+
+//device specific defines
+#define PIXEL_COUNT 16
