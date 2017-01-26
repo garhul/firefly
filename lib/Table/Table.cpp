@@ -1,21 +1,19 @@
-#include "Strip.h"
+#include "Table.h"
+#include "Animations.h"
+NeoPixelBus<NeoGrbFeature, NeoEsp8266AsyncUart800KbpsMethod> Strip (TABLE_SIZE, D10);
 
-//TODO:: make this a class property
-NeoPixelBus<NeoGrbFeature, NeoEsp8266BitBang400KbpsMethod> Strip (STRIP_LENGTH, DATA_PIN);
-
-StripController::StripController() {
-  max_brightness = 0;
+TableController::TableController() {
+  max_brightness = 0; //set max power
+  play_effect = false;
 }
 
-void StripController::begin() {
+void TableController::begin() {
   Strip.Begin();
-  test();
-  //initialize UDP listener
   UDP.begin(PORT);
 }
 
-void StripController::setColorRange(RgbColor color, int start, int end) {
-  if (start < 0 || end > STRIP_LENGTH)
+void TableController::setColorRange(RgbColor color, int start, int end) {
+  if (start < 0 || end > TABLE_SIZE)
     return;
   int i = 0;
   for (i = start; i < end; i++ ) {
@@ -28,12 +26,12 @@ void StripController::setColorRange(RgbColor color, int start, int end) {
 /**
  Run a test seting on and then off each pixel color for all the strip length
  **/
-void StripController::test() {
+void TableController::test() {
   // clear strip first
   Strip.ClearTo(RgbColor(0,0,0));
   Strip.Show();
-
-  for (int i = 0; i < STRIP_LENGTH; i++ ) {
+  Serial.println("testing started");
+  for (int i = 0; i < TABLE_SIZE; i++ ) {
     //red goes first
     Strip.SetPixelColor(i, RgbColor(255,0,0));
     Strip.Show();
@@ -48,7 +46,7 @@ void StripController::test() {
     Strip.Show();
     delay(TEST_DELAY);
   }
-
+  Serial.println("test finished");
   //clear strip again
   Strip.ClearTo(RgbColor(0,0,0));
   Strip.Show();
@@ -57,19 +55,26 @@ void StripController::test() {
 
 //TODO:: implement response for each command
 // Service endpoint,
-void StripController::service() {
+void TableController::service() {
   int dataLength = UDP.parsePacket();
-  byte data[BUFFER_SIZE];
+
+  if (play_effect) {
+    if (data[1] == 0) {
+    } else if (data[1] == 1) {
+      delay(35);
+    }
+  }
 
   if (dataLength) {
+    play_effect = false;
     UDP.read(data, dataLength); // read the packet into the buffer
 
     //debug received packet
-    Serial.println("-------");
     for (int i = 0; i < dataLength; i++) {
       Serial.print(data[i],HEX);
       Serial.print(" ");
     }
+    Serial.println(" ");
 
     if (data[0] == CMD_OFF) {
       Strip.ClearTo(RgbColor(0,0,0));
@@ -83,6 +88,8 @@ void StripController::service() {
       max_brightness = data[1];
     } else if (data[0] == CMD_SET_RANGE) {
       setColorRange(RgbColor(data[3], data[4], data[5]), data[1], data[2]);
+    } else if (data[0] == CMD_RUN_EFFECT) {
+      play_effect = true;
     }
 
 

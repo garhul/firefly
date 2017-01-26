@@ -6,10 +6,10 @@
 #include <ESP8266WebServer.h>
 #include <FS.h>
 #include <EEPROM.h>
-
 #include <NeoPixelBus.h>
-#include <Strip.h>
-StripController Leds;
+#include <Animations.h>
+#include <Table.h>
+TableController Table;
 
 MDNSResponder mdns;
 ESP8266WebServer server(80);
@@ -161,6 +161,7 @@ bool beginST() {
 
   if (mdns.begin (ST_DEVICE_NAME, WiFi.localIP() ) ) {
     Serial.print ( "MDNS responder started" );
+    Serial.println (WiFi.localIP());
   }
 
   //setup basic endpoints
@@ -191,12 +192,12 @@ void setup ( void ) {
     beginAP();
   } else {
     //initialize device controller
-    Leds.begin();
+    Table.begin();
   }
 }
 
 void loop ( void ) {
   mdns.update();
   server.handleClient();
-  Leds.service();
+  Table.service();
 }
