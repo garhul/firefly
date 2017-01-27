@@ -7,12 +7,12 @@
 #include <FS.h>
 #include <EEPROM.h>
 #include <NeoPixelBus.h>
-#include <Animations.h>
 #include <Table.h>
 TableController Table;
 
 MDNSResponder mdns;
 ESP8266WebServer server(80);
+
 
 void serveFile(const char *filepath, const char *doctype = "text/html") {
   if (! SPIFFS.exists(filepath)) {
