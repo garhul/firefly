@@ -8,10 +8,13 @@
 #include <EEPROM.h>
 #include <NeoPixelBus.h>
 #include <Table.h>
+#include <WiFiUdp.h>
+
 TableController Table;
 
 MDNSResponder mdns;
 ESP8266WebServer server(80);
+WiFiUDP UDP;
 
 
 void serveFile(const char *filepath, const char *doctype = "text/html") {
@@ -61,9 +64,12 @@ void clearCredentials() {
 
 void announce() {
   //send a broadcast message attempting to reach the server to begin handshake
-  //message prototype: device_id, device_ip, device_name
-  //
+  UDP.beginPacket(BROADCAST_IP, BROADCAST_PORT);
+  UDP.print(system_get_chip_id());
+  int rs = UDP.endPacket();
 
+  Serial.println(system_get_chip_id());
+  Serial.println(rs,DEC);
 }
 
 void setupAP() {
