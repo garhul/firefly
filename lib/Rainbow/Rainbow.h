@@ -14,9 +14,9 @@
 #define CMD_SET_ANIMATION 0x07
 #define CMD_RUN_EFFECT 0x07
 
-class TableController {
+class Rainbow {
   public:
-    TableController();
+    Rainbow();
     void begin();
     void service(); //runs service inside the loop method
 

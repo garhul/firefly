@@ -1,19 +1,18 @@
-#include "Table.h"
+#include "Rainbow.h"
 
-TableController::TableController() {
+Rainbow::Rainbow() {
   Strip Panel();
   playing = false;
 }
 
-void TableController::begin() {
+void Rainbow::begin() {
   UDP.begin(PORT);
 }
 
 //TODO:: implement response for each command
 // Service endpoint,
-void TableController::service() {
+void Rainbow::service() {
   int dataLength = UDP.parsePacket();
-
 
   if (dataLength) {
     playing = false;
@@ -41,13 +40,17 @@ void TableController::service() {
     } else if (data[0] == CMD_RUN_EFFECT) {
       playing = true;
     }
-    // Udp.beginPacket(Udp.remoteIP(), Udp.remotePort());
-    // Udp.write("Answer from ESP8266 ChipID#");
+
+    // send a response
+    UDP.beginPacket(UDP.remoteIP(), UDP.remotePort());
+    UDP.write("ok");
     // Udp.print(system_get_chip_id());
     // Udp.write("#IP of ESP8266#");
     // Udp.println(WiFi.localIP());
-    // Udp.endPacket();
-  } else if (playing) {
+    UDP.endPacket();
 
+  } else if (playing) {
+    Panel.nextFrame(data[1]);
+    delay(data[2]);
   }
 }

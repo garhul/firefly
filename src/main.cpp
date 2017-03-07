@@ -7,10 +7,10 @@
 #include <FS.h>
 #include <EEPROM.h>
 #include <NeoPixelBus.h>
-#include <Table.h>
+#include <Rainbow.h>
 #include <WiFiUdp.h>
 
-TableController Table;
+Rainbow rb;
 
 MDNSResponder mdns;
 ESP8266WebServer server(80);
@@ -198,12 +198,12 @@ void setup ( void ) {
     beginAP();
   } else {
     //initialize device controller
-    Table.begin();
+    rb.begin();
   }
 }
 
 void loop ( void ) {
   mdns.update();
   server.handleClient();
-  Table.service();
+  rb.service();
 }
