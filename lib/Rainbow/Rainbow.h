@@ -19,6 +19,7 @@ class Rainbow {
     Rainbow();
     void begin();
     void service(); //runs service inside the loop method
+    void run(byte cmd[], byte len);
 
   private:
     bool playing;

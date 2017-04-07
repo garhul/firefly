@@ -1,14 +1,12 @@
 #include <NeoPixelBus.h>
 #include <Strip.h>
 
-
 //I tried but have no clue on how to properly extend this
-NeoPixelBus<NeoGrbFeature, NeoEsp8266AsyncUart800KbpsMethod> bus(STRIP_SIZE, D10);
+//btw this method only works for d4 pin
+NeoPixelBus<NeoGrbFeature, NeoEsp8266AsyncUart800KbpsMethod> bus(STRIP_SIZE);
 
 Strip::Strip(){
   bus.Begin();
-  rel_unit_size = 1.0 / STRIP_SIZE;
-  rel_unit_byte =  1.0 / 255;
   frame_index = 0;
 }
 
@@ -18,11 +16,11 @@ void Strip::fillRGB(uint8_t r, uint8_t g, uint8_t b){
 }
 
 void Strip::fillHSL(uint8_t h, uint8_t s, uint8_t l){
-  bus.ClearTo(RgbColor(HslColor((float) rel_unit_byte *  h, (float) rel_unit_byte * s, (float) rel_unit_byte * l)));
+  bus.ClearTo(RgbColor(HslColor((float) REL_UNIT_BYTE *  h, (float) REL_UNIT_BYTE * s, (float) REL_UNIT_BYTE * l)));
   bus.Show();
 }
 
-void Strip::setMaxBrightness(int b){
+void Strip::setMaxBrightness(byte b){
   _max_bright = b;
 }
 
@@ -64,7 +62,7 @@ void Strip::setHSLRange(byte h, byte s, byte l, int start, int end) {
   if (start < 0 || end > STRIP_SIZE)
     return;
 
-  HslColor color = HslColor((float) rel_unit_byte *  h, (float) rel_unit_byte * s, (float) rel_unit_byte * l);
+  HslColor color = HslColor((float) REL_UNIT_BYTE *  h, (float) REL_UNIT_BYTE * s, (float) REL_UNIT_BYTE * l);
   for (int i = start; i < end; i++ ) {
     bus.SetPixelColor(i , RgbColor(color));
   }
@@ -78,86 +76,94 @@ void Strip::clear() {
 }
 
 void  Strip::_randomize() {
-  byte pixel = 0;
-  for (pixel; pixel < STRIP_SIZE ; pixel++) {
-    h_list[pixel] =   random(255);
-    s_list[pixel] =   random(120);
-    l_list[pixel] = 255;
-    oldh_list[pixel] = random(120);
+  byte px = 0;
+  for (px = 0; px < STRIP_SIZE ; px++) {
+    pixels[px].hue = byte(random(100));
+    pixels[px].br = byte(random(120));
+    pixels[px].sat = 255;
+    // oldh_list[px] = random(120);
   }
 }
 
 void Strip::_eff_1() {
+  static byte hue_inc = 0;
 
-  if (frame_index % 300 == 0) {
-    _randomize();
+  if (frame_index % 2 == 0) {
+    hue_inc++;
   }
 
   byte n = 0;
-  for (n = 0; n < STRIP_SIZE -1; n += 2) {
-    if (oldh_list[n] > 10) {
-      l_list[n]--;
-    } else {
-      l_list[n]++;
-    }
-    bus.SetPixelColor(n, RgbColor(HslColor(h_list[n] * rel_unit_byte, 255 * rel_unit_byte, l_list[n])));
+  for (n = 0; n < STRIP_SIZE -1 ; n+=2 ) {
+    pixels[n].hue = (n * 2)  + hue_inc;
+    pixels[n].br = _max_bright;
+    pixels[n].sat = 255;
   }
-  bus.Show();
 }
 
 void  Strip::_eff_2() {
+  byte n = 0;
+  static byte hue = random(255);
 
+  if (frame_index % 10 == 0) {
+    hue++;
+  }
+
+  for (n = 0; n < STRIP_SIZE -1 ; n+=2 ) {
+    if (n % 32 == 0) {
+      hue += 64;
+    }
+    pixels[n].hue == hue;
+    pixels[n].sat = 255;
+    pixels[n].br = _max_bright;
+  }
 }
+
+void Strip::_eff_0() {
+  byte n = 0;
+  byte hue = 0;
+  static byte hue_inc = 0;
+  hue_inc++;
+  for (n = 0; n < STRIP_SIZE -1 ; n+=2 ) {
+    if (n % 16  == 0){
+      hue += 16;
+    }
+
+    pixels[n].hue = hue + hue_inc;
+    pixels[n].sat = 255;
+    pixels[n].br = _max_bright;
+  }
+}
+
 
 void Strip::_eff_3() {
+  static byte hue = 0;
 
+  if (frame_index % 4 == 0) {
+    hue++;
+  }
+
+  byte n = 0;
+  byte br = 0;
+
+  for (n = 0; n < STRIP_SIZE -1; n +=2 ) {
+    if (n < STRIP_SIZE / 2) {
+      if (n % 16 == 0) {
+        br +=32;
+      }
+      pixels[n].hue = hue + 128;
+      pixels[n].br = br;
+      pixels[n].sat = 255;
+    } else {
+      if (n % 16 == 0 && n % 64 != 0) {
+        br -= 32;
+      }
+      pixels[n].hue = hue;
+      pixels[n].br = br;
+      pixels[n].sat = 255;
+    }
+
+  }
 }
-
-
-// void Strip::_eff_2() {
-//   byte n = 0;
-//   //
-//   // for (n = 0; n < STRIP_SIZE; n+=2 ) {
-//   //   if (n < STRIP_SIZE / 2) {
-//   //
-//   //   }
-//   //
-//   //   bus.SetPixelColor(n, RgbColor(HslColor( hue * rel_unit_byte, 1, rel_unit_byte )));
-//   // }
-// }
-//
-
-// void Strip::_eff_3(char hue) {
-//   byte n = 0;
-//   char mirrored_hue = hue + 128;
-//   char l = 50;
-//   static int row_a = 0;
-//   static int row_b = 7;
-//   //other hue should be 180 degrees apart
-//   row_a = ++row_a % 4;
-//   row_b = --row_b;
-//   if (row_b == 3) row_b = 7;
-//
-//   for (n = 0; n < STRIP_SIZE; n+=2 ) {
-//     // if (frame_index % 10 == 0) { //every 10 frames we adjust the light movement
-//     //     //first row value
-//     //     if (n < 16 * row_a) {
-//     //       l = 50 + frame_index %;
-//     //     } else if (n < 32) {
-//     //       l = 55;
-//     //     } else if (n < 48 ) {
-//     //       l =
-//     //     }
-//     // }
-//
-//     if (n < STRIP_SIZE / 2) {
-//       bus.SetPixelColor(n, RgbColor(HslColor( (float) mirrored_hue * rel_unit_byte, 1, rel_unit_byte )));
-//     } else {
-//       bus.SetPixelColor(n, RgbColor(HslColor( float) hue * rel_unit_byte, 1, rel_unit_byte )));
-//     }
-//
-//   }
-// }
 
 void Strip::resetFrameCount() {
   frame_index = 0;
@@ -165,11 +171,30 @@ void Strip::resetFrameCount() {
 
 void Strip::nextFrame(char eff_index) {
   frame_index++;
-  if (eff_index == EFFECT_RAINBOW){
+  byte n = 0;
+
+  if (eff_index == 0x00) {
+    _eff_0();
+  } else if (eff_index == 0x01) {
     _eff_1();
-  } else if (eff_index == EFFECT_TEST) {
+  } else if (eff_index == 0x02) {
     _eff_2();
-  } else if (eff_index == EFFECT_WAVE) {
+  } else if (eff_index == 0x03) {
     _eff_3();
   }
+
+  for (n = 0; n < STRIP_SIZE; n++ ) {
+    //  Serial.print(pixels[n].hue,HEX);
+    // Serial.print(" ");
+    // Serial.print(pixels[n].sat,HEX);
+    // Serial.print(" ");
+    // Serial.print(pixels[n].br,HEX);
+    // Serial.println("");
+    bus.SetPixelColor(n, RgbColor(
+      HsbColor( pixels[n].hue * REL_UNIT_BYTE,
+                pixels[n].sat * REL_UNIT_BYTE,
+                pixels[n].br * REL_UNIT_BYTE)));
+  }
+
+  bus.Show();
 }

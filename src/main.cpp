@@ -16,7 +16,6 @@ MDNSResponder mdns;
 ESP8266WebServer server(80);
 WiFiUDP UDP;
 
-
 void serveFile(const char *filepath, const char *doctype = "text/html") {
   if (! SPIFFS.exists(filepath)) {
     server.send(404,"text/plain", "File not found");
@@ -49,7 +48,6 @@ void reboot() {
   ESP.restart();
 }
 
-
 void clearCredentials() {
   for (int i = 0; i < 96; ++i) {
     EEPROM.write(i, 1);
@@ -70,6 +68,19 @@ void announce() {
 
   Serial.println(system_get_chip_id());
   Serial.println(rs,DEC);
+}
+
+void cmd() {
+  if (server.hasArg("cmd")) {
+    String c = server.arg("cmd");
+    byte b[c.length()];
+    byte n[3] = {0x07,0x01,0x00};
+    c.getBytes(b, c.length() + 1);
+    rb.run(n, 3);
+    server.send(200, "application/json", "{message:'ok'}");
+  } else {
+    server.send(404,"application/json", "{message:'no cmd provided'}");
+  }
 }
 
 void setupAP() {
@@ -176,6 +187,8 @@ bool beginST() {
   server.on("/announce" , announce); //request device to announce itself
   server.on("/reboot", reboot); //reboot the device
   server.on("/update", setup); //update descriptor info
+  server.on("/cmd", HTTP_POST, cmd);
+
 
   server.begin();
 

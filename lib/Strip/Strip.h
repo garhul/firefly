@@ -3,10 +3,15 @@
 #define STRIP_SIZE 129 // 2 leds per slot -> 64 slots + first led as levelshift
 #define TEST_DELAY 15
 
-#define EFFECT_RAINBOW 0x00
-#define EFFECT_FADE 0x01
-#define EFFECT_TEST 0x02
-#define EFFECT_WAVE 0x03
+#define REL_UNIT_BYTE 0.0039f
+#define REL_UNIT_SIZE 1.0f /  STRIP_SIZE
+
+struct leds {
+  byte hue;
+  byte sat;
+  byte br;
+};
+
 
 class Strip {
   public:
@@ -18,23 +23,20 @@ class Strip {
 
     void fillRGB(uint8_t r, uint8_t g, uint8_t b);
     void fillHSL(uint8_t h, uint8_t s, uint8_t l);
-    void setMaxBrightness(int b);
+    void setMaxBrightness(byte b);
     void resetFrameCount();
     void nextFrame(char index); //shows next frame if in animation mode
 
 
   private:
-    int _max_bright;
+    byte _max_bright = 100;
     int frame_index;
-    float rel_unit_size;
-    float rel_unit_byte;
 
-    byte h_list[STRIP_SIZE];
-    byte s_list[STRIP_SIZE];
-    byte l_list[STRIP_SIZE];
+    leds pixels[STRIP_SIZE];
     byte oldh_list[STRIP_SIZE];
 
     void _randomize();
+    void _eff_0();
     void _eff_1();
     void _eff_2();
     void _eff_4();
