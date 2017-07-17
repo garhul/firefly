@@ -1,6 +1,6 @@
 #include <NeoPixelBus.h>
 
-#define STRIP_SIZE 129 // 2 leds per slot -> 64 slots + first led as levelshift
+#define STRIP_SIZE 1 // 2 leds per slot -> 64 slots + first led as levelshift
 #define TEST_DELAY 15
 
 #define REL_UNIT_BYTE 0.0039f
@@ -29,7 +29,7 @@ class Strip {
 
 
   private:
-    byte _max_bright = 100;
+    byte _max_bright;
     int frame_index;
 
     leds pixels[STRIP_SIZE];

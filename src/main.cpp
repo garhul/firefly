@@ -9,11 +9,16 @@
 #include <NeoPixelBus.h>
 #include <Rainbow.h>
 #include <WiFiUdp.h>
+#include <Hash.h>
+#include <WebSocketsServer.h>
 
 Rainbow rb;
 
 MDNSResponder mdns;
 ESP8266WebServer server(80);
+WebSocketsServer webSocket = WebSocketsServer(1984);
+
+#define USE_SERIAL Serial
 WiFiUDP UDP;
 
 void serveFile(const char *filepath, const char *doctype = "text/html") {
@@ -35,6 +40,48 @@ void serveFile(const char *filepath, const char *doctype = "text/html") {
   f.close();
 }
 
+/**websockets test**/
+
+
+void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t length) {
+    Serial.println("escuche algo");
+    switch(type) {
+        case WStype_DISCONNECTED:
+            USE_SERIAL.printf("[%u] Disconnected!\n", num);
+            break;
+        case WStype_CONNECTED:
+            {
+                IPAddress ip = webSocket.remoteIP(num);
+                USE_SERIAL.printf("[%u] Connected from %d.%d.%d.%d url: %s\n", num, ip[0], ip[1], ip[2], ip[3], payload);
+
+				// send message to client
+				webSocket.sendTXT(num, "Connected");
+            }
+            break;
+        case WStype_TEXT:
+            USE_SERIAL.printf("[%u] get Text: %s\n", num, payload);
+
+            // send message to client
+            // webSocket.sendTXT(num, "message here");
+
+            // send data to all connected clients
+            // webSocket.broadcastTXT("message here");
+            break;
+        case WStype_BIN:
+            USE_SERIAL.printf("[%u] get binary length: %u\n", num, length);
+            hexdump(payload, length);
+
+            rb.run(payload,length);
+
+            // send message to client
+            // webSocket.sendBIN(num, payload, length);
+            break;
+    }
+
+}
+
+
+
 /** Station & Access point service endpoints **/
 void homeAP() {
   serveFile("/main.html");
@@ -42,6 +89,10 @@ void homeAP() {
 
 void descriptor() {
   serveFile("/descriptor.json");
+}
+
+void controls() {
+  serveFile("/controls.html");
 }
 
 void reboot() {
@@ -74,7 +125,7 @@ void cmd() {
   if (server.hasArg("cmd")) {
     String c = server.arg("cmd");
     byte b[c.length()];
-    byte n[3] = {0x07,0x01,0x00};
+    byte n[3] = {0x07,0x02,0x00};
     c.getBytes(b, c.length() + 1);
     rb.run(n, 3);
     server.send(200, "application/json", "{message:'ok'}");
@@ -100,7 +151,9 @@ void setupAP() {
       EEPROM.write(32+i, server.arg("pwd")[i]);
     }
 
-    EEPROM.commit();
+    if (EEPROM.commit()) {
+        Serial.println("Guardado");
+    }
     //return json success
     server.send(200, "application/json", "{message:'settings stored'}");
   } else {
@@ -122,8 +175,11 @@ void beginAP() {
 
   server.on("/", homeAP);
   server.on("/descriptor", descriptor);
+  server.on("/controls", controls);
   server.on("/setup", HTTP_POST, setupAP);
   server.on("/reboot", reboot);
+  server.on("/cmd", HTTP_POST, cmd);
+
 
   server.begin();
   WiFi.printDiag(Serial);
@@ -139,17 +195,17 @@ bool beginST() {
   WiFi.mode(WIFI_STA);
   int attempts = 0;
 
-  String pwd = "";
-  String ssid = "";
+  String pwd = "B41l4C0m0UnT3rr3m0t0"; //Elsochoridedorapa
+  String ssid = "Elsochoridedorapa"; //B41l4C0m0UnT3rr3m0t0
 
   //try to load eeprom data for SSID and pwd
-  for (int i = 0; i < 32; ++i) {
-    ssid += char(EEPROM.read(i));
-  }
-
-  for (int i = 32; i < 96; ++i) {
-    pwd += char(EEPROM.read(i));
-  }
+  // for (int i = 0; i < 32; ++i) {
+  //   ssid += char(EEPROM.read(i));
+  // }
+  //
+  // for (int i = 32; i < 96; ++i) {
+  //   pwd += char(EEPROM.read(i));
+  // }
 
   //if we are already connected:
   if (WiFi.status() == WL_CONNECTED) {
@@ -200,18 +256,25 @@ bool beginST() {
 
 void setup ( void ) {
   Serial.begin(115200);
+
   EEPROM.begin(EEPROM_SIZE);
+
   SPIFFS.begin();
   WiFi.persistent(false);
 
   delay(5000);
 
-  if (!beginST()) {
+  clearCredentials();
+
+   if (!beginST()) {
     Serial.println("Station startup failed, going into AP mode");
     beginAP();
-  } else {
+    webSocket.begin();
+    webSocket.onEvent(webSocketEvent);
+   } else {
     //initialize device controller
     rb.begin();
+    cmd();
   }
 }
 
@@ -219,4 +282,5 @@ void loop ( void ) {
   mdns.update();
   server.handleClient();
   rb.service();
+  webSocket.loop();
 }

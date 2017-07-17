@@ -9,6 +9,7 @@
 #define CMD_FILL      0x02
 #define CMD_OFF       0x03
 #define CMD_TEST      0x04
+#define CMD_FILL_HSL  0x08
 #define CMD_SET_BRIGHTNESS 0x05
 #define CMD_PLAY_ANIMATION 0x06
 #define CMD_SET_ANIMATION 0x07

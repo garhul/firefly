@@ -1,0 +1,135 @@
+<html>
+<head>
+  <title>Device Configuration</title>
+  <style type="text/css">
+    body {
+      background:#333;
+      margin:0;
+      padding:0;
+      font-family:arial;
+    }
+    .form {
+      margin-top:8em;
+      padding:1em;
+      background: #222;
+      border-top:1px solid #000;
+      border-bottom:1px solid #444;
+      text-align:center;
+      color:#999;
+    }
+
+    .form input {
+      border: 1px solid #333;
+      background: #111;
+      border-radius: .5em;
+      color: #999;
+      padding:.5em;
+    }
+
+    .form input:focus {
+      background: #000;
+      color: #BBB;
+      outline:none;
+      border-color: #444;
+    }
+
+    .form h2 {
+     text-shadow: #000 0 1px 0;
+     font-size:18px;
+     margin: 0 0 10px 0;
+     font-weight:bold;
+     text-align:center;
+     color:#BBB;
+    }
+    button {
+      border:1px solid #7788aa;
+      background-color: #0099ff;
+      background: linear-gradient(#0099ff,#0066ff);
+      color:#eee;
+      text-shadow: #000 1px 1px 1px;
+      font-weight:bold;
+      padding:.75em;
+      border-radius:.5em;
+      cursor:pointer;
+      margin-top:2em;
+      outline:none;
+      margin:2em auto;
+    }
+    #success {
+      color:#25d225;
+      display:none;
+    }
+    span {
+      color:#999;
+      font-size:.8em;
+    }
+    #error {
+      color:#d22525;
+      display:none;
+    }
+  </style>
+  <script>
+
+    function $(id) {
+      return document.getElementById(id);
+    }
+
+    function sb() {
+      //disable button for the duration of the request
+      $("submit").style.display = "none";
+      $("error").style.display = "none";
+      var pwd = $("pwd_input").value;
+      var ssid = $("ssid_input").value;
+
+      var http = new XMLHttpRequest();
+      var url = "setup";
+
+      if (pwd.length == 0 || ssid.length == 0) {
+        alert("Password and SSID are required");
+        $("submit").style.display = "block";
+        return false;
+      }
+
+      var params = "pwd=" + pwd + "&ssid=" + ssid;
+      http.open("POST", url, true);
+
+      http.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+      http.onreadystatechange = function() {
+        if(http.readyState == 4 && http.status == 200) {
+          $("success").style.display="block";
+          window.setTimeout(function(){
+            window.location.href="/reboot";
+          }, 5000);
+        } else if (http.readyState == 4 && http.status != 200) {
+            $("error").style.display="block";
+            $("submit").style.display="block";
+          }
+        }
+      http.send(params);
+      return false;
+    }
+  </script>
+</head>
+<body>
+    <div class="form">
+      <h2>Network Setup</h2>
+      <p>
+        <label for="ssid">Network SSID:</label><br/>
+        <input id="ssid_input" type="text" name="ssid"/>
+      </p>
+      <p>
+        <label for"pwd">Network password:</label><br/>
+        <input id="pwd_input" type="password" name="pwd"/>
+      </p>
+      <div id="error">
+        <strong>Unable to store network credentials</strong><br/>
+        <span>check credentials and try again</span>
+      </div>
+      <div id="success">
+        <strong>Success updating network credentials</strong><br/>
+        <span>Device will reboot to join wifi shortly</span>
+      </div>
+      <button onclick="sb()" id="submit">Save and reboot</button>
+    </div>
+</body>
+</html>

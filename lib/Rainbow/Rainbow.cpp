@@ -24,6 +24,9 @@ void Rainbow::run(byte data[], byte length) {
   } else if (data[0] == CMD_TEST) {
     Panel.test();
     playing = false;
+  } else if (data[0] == CMD_FILL_HSL) {
+    Panel.fillHSL(data[1],100,100);
+    playing = false;
   } else if (data[0] == CMD_FILL) {
     Panel.fillRGB(data[1],data[2],data[3]);
     playing = false;

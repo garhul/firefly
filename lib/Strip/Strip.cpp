@@ -7,6 +7,7 @@ NeoPixelBus<NeoGrbFeature, NeoEsp8266AsyncUart800KbpsMethod> bus(STRIP_SIZE);
 
 Strip::Strip(){
   bus.Begin();
+  _max_bright = 20;
   frame_index = 0;
 }
 
