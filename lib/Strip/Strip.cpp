@@ -7,7 +7,7 @@ NeoPixelBus<NeoGrbFeature, NeoEsp8266AsyncUart800KbpsMethod> bus(STRIP_SIZE);
 
 Strip::Strip(){
   bus.Begin();
-  _max_bright = 20;
+  _max_bright = 60;
   frame_index = 0;
 }
 
@@ -135,6 +135,36 @@ void Strip::_eff_0() {
   }
 }
 
+void Strip::_eff_6() {
+  static byte hue_inc = 0;
+  static byte first_run = 1;
+  static int dirs[STRIP_SIZE];
+
+  if (first_run == 1) {
+    for (int i = 0; i < STRIP_SIZE; i++) {
+      pixels[i].br = i % 2 * _max_bright;
+    }
+    first_run = 0;
+  }
+
+  if (frame_index % 4 == 0) {
+    hue_inc++;
+  }
+
+  for (int n = 0; n < STRIP_SIZE; n++ ) {
+    //if (frame_index % 1 == 0) {
+      if (pixels[n].br == _max_bright) { //we should start reducing
+        dirs[n] = -1;
+      } else if (pixels[n].br <= 20) {
+        dirs[n] = 1;
+      }
+      pixels[n].br += dirs[n];
+    //}
+
+    pixels[n].hue = (n * 2)  + hue_inc;
+    pixels[n].sat = 255;
+  }
+}
 
 void Strip::_eff_3() {
   static byte hue = 0;
@@ -171,7 +201,6 @@ void Strip::resetFrameCount() {
 }
 
 void Strip::nextFrame(char eff_index) {
-  frame_index++;
   byte n = 0;
 
   if (eff_index == 0x00) {
@@ -182,6 +211,8 @@ void Strip::nextFrame(char eff_index) {
     _eff_2();
   } else if (eff_index == 0x03) {
     _eff_3();
+  } else if (eff_index == 0x06) {
+    _eff_6();
   }
 
   for (n = 0; n < STRIP_SIZE; n++ ) {
@@ -198,4 +229,5 @@ void Strip::nextFrame(char eff_index) {
   }
 
   bus.Show();
+  frame_index++;
 }
