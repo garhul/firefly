@@ -249,7 +249,6 @@ void Strip::resetFrameCount() {
 }
 
 void Strip::nextFrame(char eff_index) {
-  frame_index++;
   byte n = 0;
   if (eff_index == 0x00) {
     _eff_0();
@@ -275,4 +274,5 @@ void Strip::nextFrame(char eff_index) {
   }
 
   bus.Show();
+  frame_index++;
 }
