@@ -65,12 +65,13 @@ module.exports = {
 				from:path.join(INPUT, '**/index.html'),
 				to:path.join(OUTPUT,'[name].index.html')
 			}
-		]),
-    new babel({
-         test: /\.js$/,
-         sourceMaps: true,
-         compact: true
-    }),
+		// ]),
+    // new babel({
+    //      test: /\.js$/,
+    //      sourceMaps: false,
+    //      presets: ['es2015'],
+    //      compact: false
+    // }),
 		new samplePlugin({})
 	]
 }

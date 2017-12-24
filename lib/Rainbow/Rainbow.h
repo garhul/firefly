@@ -24,6 +24,7 @@ class Rainbow {
 
   private:
     bool playing;
+    byte eff_playing;
     byte data[BUFFER_SIZE];
     Strip Panel;
     WiFiUDP UDP;

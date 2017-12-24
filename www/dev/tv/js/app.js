@@ -6,7 +6,7 @@
   }
 
   function startWs(){
-    ws = new WebSocket('ws://192.168.4.1:1984');
+    ws = new WebSocket('ws://192.168.0.64:1984');
     ws.binaryType = 'arraybuffer';
 
     ws.addEventListener('message', function (event) {

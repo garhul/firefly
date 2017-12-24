@@ -1,6 +1,6 @@
 #include <NeoPixelBus.h>
 
-#define STRIP_SIZE 1 // 2 leds per slot -> 64 slots + first led as levelshift
+#define STRIP_SIZE 100
 #define TEST_DELAY 15
 
 #define REL_UNIT_BYTE 0.0039f
@@ -26,7 +26,6 @@ class Strip {
     void setMaxBrightness(byte b);
     void resetFrameCount();
     void nextFrame(char index); //shows next frame if in animation mode
-
 
   private:
     byte _max_bright;

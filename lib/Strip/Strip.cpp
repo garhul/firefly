@@ -3,11 +3,11 @@
 
 //I tried but have no clue on how to properly extend this
 //btw this method only works for d4 pin
-NeoPixelBus<NeoGrbFeature, NeoEsp8266AsyncUart800KbpsMethod> bus(STRIP_SIZE);
+NeoPixelBus<NeoGrbFeature, NeoEsp8266AsyncUartWs2813Method> bus(STRIP_SIZE);
 
 Strip::Strip(){
   bus.Begin();
-  _max_bright = 20;
+  _max_bright = 60;
   frame_index = 0;
 }
 
@@ -80,42 +80,8 @@ void  Strip::_randomize() {
   byte px = 0;
   for (px = 0; px < STRIP_SIZE ; px++) {
     pixels[px].hue = byte(random(100));
-    pixels[px].br = byte(random(120));
+    pixels[px].br = byte(random(_max_bright));
     pixels[px].sat = 255;
-    // oldh_list[px] = random(120);
-  }
-}
-
-void Strip::_eff_1() {
-  static byte hue_inc = 0;
-
-  if (frame_index % 2 == 0) {
-    hue_inc++;
-  }
-
-  byte n = 0;
-  for (n = 0; n < STRIP_SIZE -1 ; n+=2 ) {
-    pixels[n].hue = (n * 2)  + hue_inc;
-    pixels[n].br = _max_bright;
-    pixels[n].sat = 255;
-  }
-}
-
-void  Strip::_eff_2() {
-  byte n = 0;
-  static byte hue = random(255);
-
-  if (frame_index % 10 == 0) {
-    hue++;
-  }
-
-  for (n = 0; n < STRIP_SIZE -1 ; n+=2 ) {
-    if (n % 32 == 0) {
-      hue += 64;
-    }
-    pixels[n].hue == hue;
-    pixels[n].sat = 255;
-    pixels[n].br = _max_bright;
   }
 }
 
@@ -124,7 +90,7 @@ void Strip::_eff_0() {
   byte hue = 0;
   static byte hue_inc = 0;
   hue_inc++;
-  for (n = 0; n < STRIP_SIZE -1 ; n+=2 ) {
+  for (n = 0; n < STRIP_SIZE ; n++ ) {
     if (n % 16  == 0){
       hue += 16;
     }
@@ -136,6 +102,39 @@ void Strip::_eff_0() {
 }
 
 
+void Strip::_eff_1() {
+  static byte hue_inc = 0;
+
+  if (frame_index % 2 == 0) {
+    hue_inc++;
+  }
+
+  byte n = 0;
+  for (n = 0; n < STRIP_SIZE ; n++ ) {
+    pixels[n].hue = (n * 2)  + hue_inc;
+    pixels[n].br = _max_bright;
+    pixels[n].sat = 255;
+  }
+}
+
+void Strip::_eff_2() {
+  byte n = 0;
+  static byte hue = random(255);
+
+  if (frame_index % 10 == 0) {
+    hue++;
+  }
+
+  for (n = 0; n < STRIP_SIZE ; n++ ) {
+    if (n % 32 == 0) {
+      hue += 64;
+    }
+    pixels[n].hue == hue;
+    pixels[n].sat = 255;
+    pixels[n].br = _max_bright;
+  }
+}
+
 void Strip::_eff_3() {
   static byte hue = 0;
 
@@ -146,7 +145,7 @@ void Strip::_eff_3() {
   byte n = 0;
   byte br = 0;
 
-  for (n = 0; n < STRIP_SIZE -1; n +=2 ) {
+    for (n = 0; n < STRIP_SIZE; n++ ) {
     if (n < STRIP_SIZE / 2) {
       if (n % 16 == 0) {
         br +=32;
@@ -166,6 +165,85 @@ void Strip::_eff_3() {
   }
 }
 
+void Strip::_eff_4() {
+  byte n = 0;
+  static byte h = 0;
+
+  for (n = 0; n < STRIP_SIZE ; n++) {
+    if( n < (STRIP_SIZE / 2)) {
+      pixels[n].hue = n * (255 / STRIP_SIZE) + h;
+    } else {
+      pixels[n].hue = (STRIP_SIZE - n -1) * (255 / STRIP_SIZE) +  h;
+    }
+
+    pixels[n].br = _max_bright;
+    pixels[n].sat = 255;
+  }
+
+  if (frame_index % 5 == 0) {
+    h++;
+  }
+
+}
+
+void Strip::_eff_5() {
+  byte n = 0;
+  static byte h,b = 0;
+  static int inc = -1;
+
+
+  for (n = 0; n < STRIP_SIZE ; n++) {
+    if( n < (STRIP_SIZE / 2)) {
+      pixels[n].br = n * (b / STRIP_SIZE  ) ;
+    } else {
+      pixels[n].br = (STRIP_SIZE - n -1) * (b / STRIP_SIZE) ;
+    }
+
+    pixels[n].hue = n * (255 / STRIP_SIZE) + h;
+    pixels[n].sat = 255;
+  }
+
+  if (frame_index % 2 == 0) {
+    // h++;
+    b+=inc;
+
+    if (b == 0 || b == _max_bright)
+        inc = inc * -1;
+  }
+
+}
+
+void Strip::_eff_6() {
+  static byte first_run = 1;
+  static byte hue_inc = 0;
+  static int dirs[STRIP_SIZE];
+
+  if (first_run == 1) {
+    for (int i = 0; i < STRIP_SIZE; i++) {
+      pixels[i].br = i % 2 * _max_bright;
+    }
+    first_run = 0;
+  }
+
+  if (frame_index % 4 == 0) {
+    hue_inc++;
+  }
+
+  for (int n = 0; n < STRIP_SIZE; n++ ) {
+    //if (frame_index % 1 == 0) {
+    if (pixels[n].br == _max_bright) { //we should start reducing
+      dirs[n] = -1;
+    } else if (pixels[n].br <= 20) {
+      dirs[n] = 1;
+    }
+    pixels[n].br += dirs[n];
+  //}
+
+    pixels[n].hue = (n * 2)  + hue_inc;
+    pixels[n].sat = 255;
+  }
+ }
+
 void Strip::resetFrameCount() {
   frame_index = 0;
 }
@@ -173,7 +251,6 @@ void Strip::resetFrameCount() {
 void Strip::nextFrame(char eff_index) {
   frame_index++;
   byte n = 0;
-
   if (eff_index == 0x00) {
     _eff_0();
   } else if (eff_index == 0x01) {
@@ -182,15 +259,15 @@ void Strip::nextFrame(char eff_index) {
     _eff_2();
   } else if (eff_index == 0x03) {
     _eff_3();
+  } else if (eff_index == 0x04) {
+    _eff_4();
+  } else if (eff_index == 0x05) {
+    _eff_5();
+  } else if (eff_index == 0x06) {
+    _eff_6();
   }
 
   for (n = 0; n < STRIP_SIZE; n++ ) {
-    //  Serial.print(pixels[n].hue,HEX);
-    // Serial.print(" ");
-    // Serial.print(pixels[n].sat,HEX);
-    // Serial.print(" ");
-    // Serial.print(pixels[n].br,HEX);
-    // Serial.println("");
     bus.SetPixelColor(n, RgbColor(
       HsbColor( pixels[n].hue * REL_UNIT_BYTE,
                 pixels[n].sat * REL_UNIT_BYTE,

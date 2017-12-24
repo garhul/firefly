@@ -16,7 +16,7 @@ Rainbow rb;
 
 MDNSResponder mdns;
 ESP8266WebServer server(80);
-WebSocketsServer webSocket = WebSocketsServer(1984);
+WebSocketsServer webSocket = WebSocketsServer(WS_PORT);
 
 #define USE_SERIAL Serial
 WiFiUDP UDP;
@@ -24,8 +24,8 @@ WiFiUDP UDP;
 void serveFile(const char *filepath, const char *doctype = "text/html") {
   if (! SPIFFS.exists(filepath)) {
     server.send(404,"text/plain", "File not found");
-    Serial.println("file not found");
-    Serial.println(filepath);
+    USE_SERIAL.println("file not found");
+    USE_SERIAL.println(filepath);
     return ;
   }
 
@@ -41,10 +41,8 @@ void serveFile(const char *filepath, const char *doctype = "text/html") {
 }
 
 /**websockets test**/
-
-
 void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t length) {
-    Serial.println("escuche algo");
+    USE_SERIAL.println("escuche algo");
     switch(type) {
         case WStype_DISCONNECTED:
             USE_SERIAL.printf("[%u] Disconnected!\n", num);
@@ -70,7 +68,6 @@ void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t length
         case WStype_BIN:
             USE_SERIAL.printf("[%u] get binary length: %u\n", num, length);
             hexdump(payload, length);
-
             rb.run(payload,length);
 
             // send message to client
@@ -80,11 +77,13 @@ void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t length
 
 }
 
-
-
 /** Station & Access point service endpoints **/
 void homeAP() {
   serveFile("/main.html");
+}
+
+void indexST() {
+  serveFile("/index.html");
 }
 
 void descriptor() {
@@ -117,8 +116,8 @@ void announce() {
   UDP.print(system_get_chip_id());
   int rs = UDP.endPacket();
 
-  Serial.println(system_get_chip_id());
-  Serial.println(rs,DEC);
+  USE_SERIAL.println(system_get_chip_id());
+  USE_SERIAL.println(rs,DEC);
 }
 
 void cmd() {
@@ -152,7 +151,7 @@ void setupAP() {
     }
 
     if (EEPROM.commit()) {
-        Serial.println("Guardado");
+        USE_SERIAL.println("Guardado");
     }
     //return json success
     server.send(200, "application/json", "{message:'settings stored'}");
@@ -162,41 +161,51 @@ void setupAP() {
   }
 }
 
+
+/**
+setup all endpoints for any mode we're running in
+*/
+void setupEndpoints() {
+  //setup basic endpoints
+
+  server.on("/clear", clearCredentials); //endpoint for clearing ssid / pwd
+  server.on("/descriptor" , descriptor); //endpoint for serving the descriptor
+  server.on("/announce" , announce); //request device to announce itself
+  server.on("/reboot", reboot); //reboot the device
+  server.on("/update", setup); //update descriptor info
+  server.on("/cmd", HTTP_POST, cmd);
+  server.on("/ap", homeAP);
+  server.on("/", indexST);
+  server.on("/controls", controls);
+  server.on("/setup", HTTP_POST, setupAP);
+
+}
+
 void beginAP() {
   WiFi.mode(WIFI_AP);
 
   #if AP_USE_PWD
-    WiFi.softAP(AP_SSID, AP_PWD);
+    WiFi.softAP(AP_SSID + system_get_chip_id(), AP_PWD);
   #else
-    WiFi.softAP(AP_SSID);
+    WiFi.softAP(AP_SSID + system_get_chip_id());
   #endif
 
   IPAddress myIP = WiFi.softAPIP();
-
-  server.on("/", homeAP);
-  server.on("/descriptor", descriptor);
-  server.on("/controls", controls);
-  server.on("/setup", HTTP_POST, setupAP);
-  server.on("/reboot", reboot);
-  server.on("/cmd", HTTP_POST, cmd);
-
-
-  server.begin();
   WiFi.printDiag(Serial);
-  Serial.println(WiFi.softAPIP());
+  USE_SERIAL.println(WiFi.softAPIP());
 
-  if ( mdns.begin ( AP_DEVICE_NAME, WiFi.softAPIP() )) {
-    Serial.println ( "MDNS responder started" );
+  if ( mdns.begin ( AP_DEVICE_NAME + system_get_chip_id(), WiFi.softAPIP() )) {
+    USE_SERIAL.println ( "MDNS responder started" );
   }
 }
 
 bool beginST() {
-  Serial.println("starting station mode");
+  USE_SERIAL.println("starting station mode");
   WiFi.mode(WIFI_STA);
   int attempts = 0;
 
-  String pwd = "B41l4C0m0UnT3rr3m0t0"; //Elsochoridedorapa
-  String ssid = "Elsochoridedorapa"; //B41l4C0m0UnT3rr3m0t0
+  String pwd = ST_PWD;
+  String ssid = ST_SSID;
 
   //try to load eeprom data for SSID and pwd
   // for (int i = 0; i < 32; ++i) {
@@ -215,67 +224,57 @@ bool beginST() {
   }
 
   while (WiFi.status() != WL_CONNECTED && attempts < CONN_RETRIES) { //wait until we connect
-    Serial.println("creds...");
-    Serial.println(ssid.c_str());
-    Serial.println(pwd.c_str());
+    USE_SERIAL.println("creds...");
+    USE_SERIAL.println(ssid.c_str());
+    USE_SERIAL.println(pwd.c_str());
 
     WiFi.begin ( ssid.c_str(), pwd.c_str() );
     attempts++;
     delay(ST_CONN_TIMEOUT);
-    Serial.println("Station connection attempt failed, retrying");
+    USE_SERIAL.println("Station connection attempt failed, retrying");
   }
 
   //are we connected yet ?
   if (WiFi.status() != WL_CONNECTED)
     return false;
 
-  Serial.println("Station startup successful");
+  USE_SERIAL.println("Station startup successful");
   WiFi.printDiag(Serial);
 
-  if (mdns.begin (ST_DEVICE_NAME, WiFi.localIP() ) ) {
-    Serial.print ( "MDNS responder started" );
-    Serial.println (WiFi.localIP());
+  if (mdns.begin (ST_DEVICE_NAME + system_get_chip_id(), WiFi.localIP() ) ) {
+    USE_SERIAL.print ( "MDNS responder started" );
+    USE_SERIAL.println (WiFi.localIP());
   }
-
-  //setup basic endpoints
-  server.on("/clear", clearCredentials); //endpoint for clearing ssid / pwd
-  server.on("/descriptor" , descriptor); //endpoint for serving the descriptor
-  server.on("/announce" , announce); //request device to announce itself
-  server.on("/reboot", reboot); //reboot the device
-  server.on("/update", setup); //update descriptor info
-  server.on("/cmd", HTTP_POST, cmd);
-
-
-  server.begin();
-
-  //announce this device
-  announce();
 
   return true;
 }
 
 void setup ( void ) {
-  Serial.begin(115200);
-
+  USE_SERIAL.begin(115200);
   EEPROM.begin(EEPROM_SIZE);
-
   SPIFFS.begin();
   WiFi.persistent(false);
+  delay(2000);
 
-  delay(5000);
-
-  clearCredentials();
-
-   if (!beginST()) {
-    Serial.println("Station startup failed, going into AP mode");
+  if (!beginST()) {
+    USE_SERIAL.println("Station startup failed, going into AP mode");
     beginAP();
-    webSocket.begin();
-    webSocket.onEvent(webSocketEvent);
-   } else {
-    //initialize device controller
-    rb.begin();
-    cmd();
+  } else {
+    //station mode, announce the device
+    announce();
   }
+
+  setupEndpoints();
+  server.begin();
+
+  //initialize websockets Service
+  webSocket.begin();
+  webSocket.onEvent(webSocketEvent);
+
+  //initialize device controller
+  rb.begin();
+  byte n[1] = {0x04}; //run awake test
+  rb.run(n, 1);
 }
 
 void loop ( void ) {

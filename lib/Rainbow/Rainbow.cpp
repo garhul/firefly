@@ -25,7 +25,7 @@ void Rainbow::run(byte data[], byte length) {
     Panel.test();
     playing = false;
   } else if (data[0] == CMD_FILL_HSL) {
-    Panel.fillHSL(data[1],100,100);
+    Panel.fillHSL(data[1],data[2],data[3]);
     playing = false;
   } else if (data[0] == CMD_FILL) {
     Panel.fillRGB(data[1],data[2],data[3]);
@@ -37,6 +37,7 @@ void Rainbow::run(byte data[], byte length) {
     playing = false;
   } else if (data[0] == CMD_RUN_EFFECT) {
     playing = true;
+    eff_playing = data[1];
   }
 
 }
@@ -48,7 +49,6 @@ void Rainbow::service() {
 
   if (dataLength) {
     UDP.read(data, dataLength); // read the packet into the buffer
-
     run(data, dataLength);
 
     // send a response
@@ -57,7 +57,7 @@ void Rainbow::service() {
     UDP.endPacket();
 
   } else if (playing) {
-    Panel.nextFrame(data[1]);
-    delay(50); //around 20 fps is ok
+    Panel.nextFrame(eff_playing);
+    delay(30); //around 30 fps is ok
   }
 }

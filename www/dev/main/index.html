@@ -1,0 +1,50 @@
+<!doctype html>
+<html class="no-js" lang=""><head>
+  <meta charset="utf-8">
+  <title>Firefly Control</title>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="description" content="">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" type="text/css" href="./css/main.css"/>
+</head>
+<body>
+    <div id="tab0_view" class="content">
+      <div id="cw"></div>
+      <div id="controls">
+        <div>
+          <label for="s">Saturation</label>
+          <input id="s" type="range" max="255" min="0"/>
+        </div>
+        <div>
+          <label for="l">Luminosity</label>
+          <input id="l" type="range" max="255" min="0"/>
+        </div>
+        </div>
+        <!-- <div class="onoffswitch">
+          <input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" id="myonoffswitch" checked>
+          <label class="onoffswitch-label" for="myonoffswitch"></label>
+        </div> -->
+    </div>
+    <div id="tab1_view" class="content" style="overflow-y:scroll;position:absolute">
+      <div id="btns">
+        <button data-cmd="0x00">Rainbow</button>
+        <button data-cmd="0x01">Fire</button>
+        <button data-cmd="0x02">Blues</button>
+        <button data-cmd="0x03">Hue Wave</button>
+        <button data-cmd="0x04">Triad</button>
+        <button data-cmd="0x05">Opposites</button>
+        <button data-cmd="0x06">Breathe</button>
+      </div>
+    </div>
+    <div id="tab2_view" class="content"></div>
+    <div id="tab3_view" class="content"></div>
+  </div>
+  <div id="tabs">
+    <div id="tab0">wheel</div>
+    <div id="tab1">effects</div>
+    <div id="tab2">test</div>
+    <div id="tab3">info</div>
+  </div>
+  <script type="text/javascript" src="./js/app.js"></script>
+</body>
+</html>

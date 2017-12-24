@@ -1,8 +1,8 @@
 {
-  "name":"office-board",
+  "name":"device_name",
   "services": [
     {
-      "name":"rainbow",
+      "name":"service_1",
       "channels": 24,
       "port":5000
     },
