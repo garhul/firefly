@@ -85,7 +85,7 @@ void  Strip::_randomize() {
   }
 }
 
-void Strip::_eff_0() {
+void Strip::_eff_0() { //rainbow ?
   byte n = 0;
   byte hue = 0;
   static byte hue_inc = 0;
@@ -102,7 +102,7 @@ void Strip::_eff_0() {
 }
 
 
-void Strip::_eff_1() {
+void Strip::_eff_1() { //rainbow 2
   static byte hue_inc = 0;
 
   if (frame_index % 2 == 0) {
@@ -117,16 +117,16 @@ void Strip::_eff_1() {
   }
 }
 
-void Strip::_eff_2() {
+void Strip::_eff_2() { //split something
   byte n = 0;
   static byte hue = random(255);
 
-  if (frame_index % 10 == 0) {
+  // if (frame_index % 10 == 0) {
     hue++;
-  }
+  // }
 
   for (n = 0; n < STRIP_SIZE ; n++ ) {
-    if (n % 32 == 0) {
+    if (n % (STRIP_SIZE / 2) == 0) {
       hue += 64;
     }
     pixels[n].hue == hue;
@@ -147,25 +147,19 @@ void Strip::_eff_3() {
 
     for (n = 0; n < STRIP_SIZE; n++ ) {
     if (n < STRIP_SIZE / 2) {
-      if (n % 16 == 0) {
-        br +=32;
-      }
       pixels[n].hue = hue + 128;
-      pixels[n].br = br;
+      pixels[n].br = _max_bright;
       pixels[n].sat = 255;
     } else {
-      if (n % 16 == 0 && n % 64 != 0) {
-        br -= 32;
-      }
       pixels[n].hue = hue;
-      pixels[n].br = br;
+      pixels[n].br = _max_bright;
       pixels[n].sat = 255;
     }
 
   }
 }
 
-void Strip::_eff_4() {
+void Strip::_eff_4() { //area efect (hue from 0 + increment on half of the strip)
   byte n = 0;
   static byte h = 0;
 
@@ -194,21 +188,17 @@ void Strip::_eff_5() {
 
   for (n = 0; n < STRIP_SIZE ; n++) {
     if( n < (STRIP_SIZE / 2)) {
-      pixels[n].br = n * (b / STRIP_SIZE  ) ;
+      pixels[n].br = n * (_max_bright / STRIP_SIZE  ) ;
     } else {
-      pixels[n].br = (STRIP_SIZE - n -1) * (b / STRIP_SIZE) ;
+      pixels[n].br = (STRIP_SIZE - n -1) * (_max_bright / STRIP_SIZE) ;
     }
 
     pixels[n].hue = n * (255 / STRIP_SIZE) + h;
     pixels[n].sat = 255;
   }
 
-  if (frame_index % 2 == 0) {
-    // h++;
-    b+=inc;
+  if (frame_index % 4 == 0) {
 
-    if (b == 0 || b == _max_bright)
-        inc = inc * -1;
   }
 
 }
@@ -233,7 +223,7 @@ void Strip::_eff_6() {
     //if (frame_index % 1 == 0) {
     if (pixels[n].br == _max_bright) { //we should start reducing
       dirs[n] = -1;
-    } else if (pixels[n].br <= 20) {
+    } else if (pixels[n].br <= 0) {
       dirs[n] = 1;
     }
     pixels[n].br += dirs[n];

@@ -8,6 +8,8 @@
   <link rel="stylesheet" type="text/css" href="./css/main.css"/>
 </head>
 <body>
+    <div id="conn_err" style="visibility:hidden">Connection error</div>
+    <div id="overlay" style="visibility:hidden"></div>
     <div id="tab0_view" class="content">
       <div id="cw"></div>
       <div id="controls">
@@ -19,14 +21,14 @@
           <label for="l">Luminosity</label>
           <input id="l" type="range" max="255" min="0"/>
         </div>
-        </div>
+      </div>
         <!-- <div class="onoffswitch">
           <input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" id="myonoffswitch" checked>
           <label class="onoffswitch-label" for="myonoffswitch"></label>
         </div> -->
     </div>
     <div id="tab1_view" class="content" style="overflow-y:scroll;position:absolute">
-      <div id="btns">
+      <div id="btns" style="padding-bottom:8em">
         <button data-cmd="0x00">Rainbow</button>
         <button data-cmd="0x01">Fire</button>
         <button data-cmd="0x02">Blues</button>
@@ -36,14 +38,20 @@
         <button data-cmd="0x06">Breathe</button>
       </div>
     </div>
-    <div id="tab2_view" class="content"></div>
-    <div id="tab3_view" class="content"></div>
+    <div id="tab2_view" class="content">
+      <div id="controls">
+        <div>
+          <label for="s">Brightness</label>
+          <input id="br" type="range" max="255" min="0"/>
+        </div>
+      </div>
+    </div>
   </div>
   <div id="tabs">
     <div id="tab0">wheel</div>
     <div id="tab1">effects</div>
-    <div id="tab2">test</div>
-    <div id="tab3">info</div>
+    <div id="tab2">bright</div>
+    <div id="off">off</div>
   </div>
   <script type="text/javascript" src="./js/app.js"></script>
 </body>

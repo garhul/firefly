@@ -26,11 +26,11 @@ const COLOR_WHEEL = function(sv) {
   			var color = document.createElement("span");
   			color.setAttribute("id", "d" + i);
   			color.style.backgroundColor = "hsl(" + i + ", 100%, 50%)";
-  			color.style.msTransform = "rotate(" + i + "deg)";
-  			color.style.webkitTransform = "rotate(" + i + "deg)";
-  			color.style.MozTransform = "rotate(" + i + "deg)";
-  			color.style.OTransform = "rotate(" + i + "deg)";
-  			color.style.transform = "rotate(" + i + "deg)";
+  			//color.style.msTransform = "rotate(" + i + "deg)";
+  			//color.style.webkitTransform = "rotate(" + i + "deg)";
+  			//color.style.MozTransform = "rotate(" + i + "deg)";
+  			//color.style.OTransform = "rotate(" + i + "deg)";
+  			color.style.transform = "rotate(-" + i + "deg)";
         color.setAttribute("h", i);
 
         color.addEventListener('touchmove',onHchange);
@@ -49,14 +49,33 @@ const COLOR_WHEEL = function(sv) {
 
 (function () {
   var ws = null;
-  var tabs = 4;
+  var tabs = 3;
 
-  function startWs(){
+  function startWs() {
     ws = new WebSocket('ws://localhost:8080');
     ws.binaryType = 'arraybuffer';
 
+    _id('overlay').style.visibility = 'visible';
+    _id('conn_err').style.visibility = 'visible';
+
     ws.addEventListener('message', function (event) {
         console.log('Message from server', event.data);
+    });
+
+    ws.addEventListener('error', function (event) {
+        console.log('error', event.data);
+        _id('overlay').style.visibility = 'visible';
+        _id('conn_err').style.visibility = 'visible';
+    });
+
+    ws.addEventListener('open', function (event) {
+      _id('overlay').style.visibility = 'hidden';
+      _id('conn_err').style.visibility = 'hidden';
+    });
+
+    ws.addEventListener('close', function (event) {
+      _id('overlay').style.visibility = 'visible';
+      _id('conn_err').style.visibility = 'visible';
     });
   }
 
@@ -80,19 +99,42 @@ const COLOR_WHEEL = function(sv) {
       });
     }
 
+    // off button
+    _id('off').addEventListener('click', function(ev) {
+      var payload = new Uint8Array(3);
+
+      payload[0] = 0x03;
+      payload[1] = 0x00;
+      payload[2] = 0x00;
+
+      send(payload);
+    });
+
+    _id('br').addEventListener('change',function(ev) {
+      var val = parseInt(ev.target.value);
+      var payload = new Uint8Array(3);
+
+      payload[0] = 0x05;
+      payload[1] = val;
+      payload[2] = 0x00;
+
+      send(payload);
+    });
   }
+
   var in_use = false;
   function send(payload) {
     if (in_use) {
       return;
     }
-    in_use = true;
 
+    in_use = true;
     if (ws.readyState === ws.OPEN) {
       ws.send(payload);
     } else {
       console.error('unable to communicate with socket');
     }
+
     setTimeout(function () {
       in_use = false;
     }, 100);

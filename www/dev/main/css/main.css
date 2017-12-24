@@ -167,6 +167,27 @@ html, body {
   background: -o-linear-gradient(#111, #222);
 }
 
+#conn_err {
+  font-size: 2em;
+  color: #990000;
+  background-color:#330000;
+  padding:.2em;
+  position:fixed;
+  width:100%;
+  top:0px;
+  border-bottom:.2em solid #220000;
+  z-index:999;
+}
+
+#overlay {
+  width:100%;
+  position:fixed;
+  z-index:998;
+  background-color:#000;
+  opacity: .8;
+  height:100%;
+}
+
 #cw {
   margin: 0 auto;
   position: absolute;

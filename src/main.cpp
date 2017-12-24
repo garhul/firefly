@@ -194,7 +194,7 @@ void beginAP() {
   WiFi.printDiag(Serial);
   USE_SERIAL.println(WiFi.softAPIP());
 
-  if ( mdns.begin ( AP_DEVICE_NAME + system_get_chip_id(), WiFi.softAPIP() )) {
+  if ( mdns.begin ( AP_DEVICE_NAME, WiFi.softAPIP() )) {
     USE_SERIAL.println ( "MDNS responder started" );
   }
 }
@@ -241,7 +241,7 @@ bool beginST() {
   USE_SERIAL.println("Station startup successful");
   WiFi.printDiag(Serial);
 
-  if (mdns.begin (ST_DEVICE_NAME + system_get_chip_id(), WiFi.localIP() ) ) {
+  if (mdns.begin (ST_DEVICE_NAME, WiFi.localIP() ) ) {
     USE_SERIAL.print ( "MDNS responder started" );
     USE_SERIAL.println (WiFi.localIP());
   }

@@ -5,7 +5,7 @@
 #define DEBUG TRUE
 #define CONN_RETRIES 3
 #define AP_DEVICE_NAME "firefly_"
-#define ST_DEVICE_NAME "firefly_"
+#define ST_DEVICE_NAME "tree"
 #define ST_CONN_TIMEOUT 10000
 #define ST_ANNOUNCE_PORT 3001
 #define MDNS_DEBUG_RX TRUE
