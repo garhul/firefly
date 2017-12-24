@@ -1,4 +1,20 @@
 {
-  "name":"pepe",
-  "id":"argento"
+  "name":"device_name",
+  "services": [
+    {
+      "name":"service_1",
+      "channels": 24,
+      "port":5000
+    },
+    {
+      "name":"dimBox",
+      "channels":4,
+      "port":5001
+    },
+    {
+      "name":"dht11",
+      "channels":2,
+      "port":5002
+    }
+  ]
 }
