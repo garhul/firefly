@@ -3,7 +3,7 @@
 
 //I tried but have no clue on how to properly extend this
 //btw this method only works for d4 pin
-NeoPixelBus<NeoGrbFeature, NeoEsp8266AsyncUartWs2813Method> bus(STRIP_SIZE);
+NeoPixelBus<NeoGrbFeature, NeoEsp8266Uart800KbpsMethod> bus(STRIP_SIZE);
 
 Strip::Strip(){
   bus.Begin();

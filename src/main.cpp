@@ -2,7 +2,7 @@
 #include <defaults.h>
 #include <ESP8266WiFi.h>
 #include <WiFiClient.h>
-#include <ESP8266mDNS.h>
+// #include <ESP8266mDNS.h>
 #include <ESP8266WebServer.h>
 #include <FS.h>
 #include <EEPROM.h>
@@ -14,7 +14,7 @@
 
 Rainbow rb;
 
-MDNSResponder mdns;
+// MDNSResponder mdns;
 ESP8266WebServer server(80);
 WebSocketsServer webSocket = WebSocketsServer(WS_PORT);
 
@@ -185,18 +185,18 @@ void beginAP() {
   WiFi.mode(WIFI_AP);
 
   #if AP_USE_PWD
-    WiFi.softAP(AP_SSID + system_get_chip_id(), AP_PWD);
+    WiFi.softAP(AP_SSID, AP_PWD);
   #else
-    WiFi.softAP(AP_SSID + system_get_chip_id());
+    WiFi.softAP(AP_SSID);
   #endif
 
   IPAddress myIP = WiFi.softAPIP();
   WiFi.printDiag(Serial);
   USE_SERIAL.println(WiFi.softAPIP());
 
-  if ( mdns.begin ( AP_DEVICE_NAME, WiFi.softAPIP() )) {
-    USE_SERIAL.println ( "MDNS responder started" );
-  }
+  // if ( mdns.begin ( AP_DEVICE_NAME, WiFi.softAPIP() )) {
+  //   USE_SERIAL.println ( "MDNS responder started" );
+  // }
 }
 
 bool beginST() {
@@ -204,17 +204,17 @@ bool beginST() {
   WiFi.mode(WIFI_STA);
   int attempts = 0;
 
-  String pwd = ST_PWD;
-  String ssid = ST_SSID;
+  String pwd = ""; //ST_PWD;
+  String ssid = ""; //ST_SSID;
 
-  //try to load eeprom data for SSID and pwd
-  // for (int i = 0; i < 32; ++i) {
-  //   ssid += char(EEPROM.read(i));
-  // }
-  //
-  // for (int i = 32; i < 96; ++i) {
-  //   pwd += char(EEPROM.read(i));
-  // }
+  // try to load eeprom data for SSID and pwd
+  for (int i = 0; i < 32; ++i) {
+    ssid += char(EEPROM.read(i));
+  }
+
+  for (int i = 32; i < 96; ++i) {
+    pwd += char(EEPROM.read(i));
+  }
 
   //if we are already connected:
   if (WiFi.status() == WL_CONNECTED) {
@@ -241,10 +241,10 @@ bool beginST() {
   USE_SERIAL.println("Station startup successful");
   WiFi.printDiag(Serial);
 
-  if (mdns.begin (ST_DEVICE_NAME, WiFi.localIP() ) ) {
-    USE_SERIAL.print ( "MDNS responder started" );
-    USE_SERIAL.println (WiFi.localIP());
-  }
+  // if (mdns.begin (ST_DEVICE_NAME, WiFi.localIP() ) ) {
+  //   USE_SERIAL.print ( "MDNS responder started" );
+  //   USE_SERIAL.println (WiFi.localIP());
+  // }
 
   return true;
 }
@@ -278,7 +278,7 @@ void setup ( void ) {
 }
 
 void loop ( void ) {
-  mdns.update();
+  // mdns.update();
   server.handleClient();
   rb.service();
   webSocket.loop();

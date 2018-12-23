@@ -4,8 +4,8 @@
 #define PORT 5000
 #define DEBUG TRUE
 #define CONN_RETRIES 3
-#define AP_DEVICE_NAME "firefly_"
-#define ST_DEVICE_NAME "tree"
+#define AP_DEVICE_NAME "aurora_"
+#define ST_DEVICE_NAME "aurora"
 #define ST_CONN_TIMEOUT 10000
 #define ST_ANNOUNCE_PORT 3001
 #define MDNS_DEBUG_RX TRUE
@@ -14,5 +14,5 @@
 #define BROADCAST_PORT 3001
 #define USE_WS TRUE
 #define WS_PORT 1984
-#define ST_SSID "thisisnotit"
-#define ST_PWD  "Bl4k34Pr351d3nt"
+#define ST_SSID ""
+#define ST_PWD  ""
