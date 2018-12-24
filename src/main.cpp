@@ -273,8 +273,8 @@ void setup ( void ) {
 
   //initialize device controller
   rb.begin();
-  byte n[1] = {0x04}; //run awake test
-  rb.run(n, 1);
+  byte n[2] = {0x07, 0x07 }; //run awake test
+  rb.run(n, 2);
 }
 
 void loop ( void ) {

@@ -65,7 +65,7 @@ module.exports = {
 				from:path.join(INPUT, '**/index.html'),
 				to:path.join(OUTPUT,'[name].index.html')
 			}
-		// ]),
+		]),
     // new babel({
     //      test: /\.js$/,
     //      sourceMaps: false,

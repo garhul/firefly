@@ -2,9 +2,9 @@ function _id(id) {
   return document.getElementById(id);
 }
 
-const COLOR_WHEEL = function(sv) {
-  var service = sv;
-  var state = {h:0, l:50, s:100};
+const COLOR_WHEEL = (function() {
+  var service = () => null;
+  var state = {h:0, l:25, s:255};
 
   function onlChange(ev) {
     state.l = parseInt(ev.target.value);
@@ -12,7 +12,9 @@ const COLOR_WHEEL = function(sv) {
   }
 
   function onHchange(ev) {
+
     state.h = parseInt(ev.target.getAttribute('h'));
+    console.log(state);
     service(state);
   }
 
@@ -22,37 +24,41 @@ const COLOR_WHEEL = function(sv) {
   }
 
   function render() {
-    for (var i=0; i<360; i++) {
+    const relation = 1/1.411;
+    for (var i=0; i < 90; i++) {
   			var color = document.createElement("span");
-  			color.setAttribute("id", "d" + i);
-  			color.style.backgroundColor = "hsl(" + i + ", 100%, 50%)";
-  			//color.style.msTransform = "rotate(" + i + "deg)";
-  			//color.style.webkitTransform = "rotate(" + i + "deg)";
-  			//color.style.MozTransform = "rotate(" + i + "deg)";
-  			//color.style.OTransform = "rotate(" + i + "deg)";
-  			color.style.transform = "rotate(-" + i + "deg)";
-        color.setAttribute("h", i);
+  			color.setAttribute("id", "d" + i );
+  			color.style.backgroundColor = "hsl(" + i * 4 + ", 100%, 50%)";
+  			color.style.transform = "rotate(" + i * 4 + "deg)";
+        color.setAttribute("h", i * 4 * relation);
 
         color.addEventListener('touchmove',onHchange);
         color.addEventListener('mousemove',onHchange);
-
+        _id('l').value = state.l;
+        _id('s').value = state.s;
         _id('l').addEventListener('change',onlChange);
         _id('s').addEventListener('change',onSchange);
         _id('cw').appendChild(color)
   	};
   }
 
-  return {
-    render
+  function init(sv) {
+    service = sv;
   }
-};
+
+  return {
+    init,
+    getState: () => this.state,
+    render: render,
+  }
+})();
 
 (function () {
   var ws = null;
   var tabs = 3;
 
   function startWs() {
-    ws = new WebSocket('ws://localhost:8080');
+    ws = new WebSocket('ws://192.168.0.26:1984');
     ws.binaryType = 'arraybuffer';
 
     _id('overlay').style.visibility = 'visible';
@@ -130,6 +136,7 @@ const COLOR_WHEEL = function(sv) {
 
     in_use = true;
     if (ws.readyState === ws.OPEN) {
+      console.log(payload);
       ws.send(payload);
     } else {
       console.error('unable to communicate with socket');
@@ -151,7 +158,7 @@ const COLOR_WHEEL = function(sv) {
 
   function start() {
     startWs();
-    const cw = COLOR_WHEEL(function(data) {
+    COLOR_WHEEL.init(function(data) {
       var payload = new Uint8Array(4);
       payload[0] = 0x08;
       payload[1] = parseInt(data.h);
@@ -159,7 +166,8 @@ const COLOR_WHEEL = function(sv) {
       payload[3] = parseInt(data.l);
       send(payload);
     });
-    cw.render();
+
+    COLOR_WHEEL.render();
     showTab('tab0_view');
   };
 

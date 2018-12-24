@@ -36,6 +36,7 @@ void Rainbow::run(byte data[], byte length) {
     Panel.setRGBRange(data[3], data[4], data[5], data[1], data[2]);
     playing = false;
   } else if (data[0] == CMD_RUN_EFFECT) {
+    Panel.resetFrameCount();
     playing = true;
     eff_playing = data[1];
   }

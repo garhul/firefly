@@ -190,18 +190,19 @@ html, body {
 
 #cw {
   margin: 0 auto;
+  top:10em;
   position: absolute;
-  width:100%;
+  width:80%;
 }
 
 #cw>span {
   cursor: pointer;
   position: absolute;
   top: 12em;
-  width: 6em;
-  height: 5em;
+  width: 4em;
+  height: 4em;
   border-radius: 50%;
-  transform-origin: 20% -50%;
+  transform-origin: 150% -100%;
   opacity: 0.2;
 }
 

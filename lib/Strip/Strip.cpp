@@ -101,7 +101,6 @@ void Strip::_eff_0() { //rainbow ?
   }
 }
 
-
 void Strip::_eff_1() { //rainbow 2
   static byte hue_inc = 0;
 
@@ -133,6 +132,43 @@ void Strip::_eff_2() { //split something
     pixels[n].sat = 255;
     pixels[n].br = _max_bright;
   }
+}
+
+void Strip::_aurora() {
+  static byte h_center = 80;
+  static byte brn1 = 14;
+  static byte brn2 = 15;
+  byte br = 80;
+  byte n = 0 ;
+
+  if (frame_index == 0 ) {
+    //set the base for the effect
+    for (n = 0; n < 30; n ++) {
+      pixels[n].br = _max_bright;
+      pixels[n].sat = 255;
+      pixels[n].hue = (n < 15) ? h_center + (15 - n) * 2: h_center - (n - 15) * 2;
+    }
+  }
+
+  for (n = 0; n < 30; n++ ) {
+    if (n < 15) {
+      pisels[n].br += (n == brn1)? pixels[n].br + 5: br - ((15 - n) * 2);)
+
+      pixels[n].br =
+      pixels[n].hue = ++h_center;
+    } else {
+      pixels[n].br = (n == brn2)? pixels[n].br + 5: br - ((n - 15) * 2);
+      pixels[n].hue = --h_center;
+    }
+    pixels[n].sat = 255;
+  }
+
+  if (frame_index % 2 == 0) {
+    brn1 = (brn1 == 0) ? 14 : brn1-1;
+    brn2 = (brn2 == 29) ? 15 : brn2+1;
+    //h_center++;
+  }
+
 }
 
 void Strip::_eff_3() {
@@ -254,6 +290,8 @@ void Strip::nextFrame(char eff_index) {
     _eff_5();
   } else if (eff_index == 0x06) {
     _eff_6();
+  } else if (eff_index == 0x07) {
+    _aurora();
   }
 
   for (n = 0; n < STRIP_SIZE; n++ ) {
