@@ -1,6 +1,6 @@
 #include <NeoPixelBus.h>
 
-#define STRIP_SIZE 60
+#define STRIP_SIZE 28
 #define TEST_DELAY 15
 
 #define REL_UNIT_BYTE 0.0039f
@@ -36,6 +36,7 @@ class Strip {
 
     void _randomize();
     void _aurora();
+    void _aurora2();
     void _eff_0();
     void _eff_1();
     void _eff_2();

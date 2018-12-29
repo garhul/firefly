@@ -134,40 +134,77 @@ void Strip::_eff_2() { //split something
   }
 }
 
-void Strip::_aurora() {
-  static byte h_center = 80;
-  static byte brn1 = 14;
-  static byte brn2 = 15;
-  byte br = 80;
-  byte n = 0 ;
+
+void Strip::_aurora2() {
+  static byte h_center = 0;
+  static byte br_center = 0;
+  static int dir = -1;
+  byte n = 0;
 
   if (frame_index == 0 ) {
     //set the base for the effect
-    for (n = 0; n < 30; n ++) {
+    for (n = 0; n < STRIP_SIZE; n++) {
       pixels[n].br = _max_bright;
       pixels[n].sat = 255;
-      pixels[n].hue = (n < 15) ? h_center + (15 - n) * 2: h_center - (n - 15) * 2;
+      pixels[n].hue = h_center + n;
     }
   }
 
-  for (n = 0; n < 30; n++ ) {
-    if (n < 15) {
-      pisels[n].br += (n == brn1)? pixels[n].br + 5: br - ((15 - n) * 2);)
+  for (n = 0; n < STRIP_SIZE; n++) {
+      pixels[n].hue = h_center + n;
+      pixels[n].sat = 255;
+      pixels[n].br = (br_center + n) * ((float)_max_bright / STRIP_SIZE);
+  }
 
-      pixels[n].br =
-      pixels[n].hue = ++h_center;
-    } else {
-      pixels[n].br = (n == brn2)? pixels[n].br + 5: br - ((n - 15) * 2);
-      pixels[n].hue = --h_center;
+  if (frame_index % 8 == 0) {
+    h_center++;
+  }
+
+  if (frame_index % 4 == 0) {
+    if (br_center == STRIP_SIZE || br_center == 0) {
+      dir = dir * -1;
     }
-    pixels[n].sat = 255;
+    br_center += dir;
   }
 
-  if (frame_index % 2 == 0) {
-    brn1 = (brn1 == 0) ? 14 : brn1-1;
-    brn2 = (brn2 == 29) ? 15 : brn2+1;
-    //h_center++;
-  }
+
+
+
+}
+
+void Strip::_aurora() {
+  // static byte h_center = 80;
+  // static byte brn1 = 14;
+  // static byte brn2 = 15;
+  // byte br = 80;
+  // byte n = 0 ;
+  //
+  // if (frame_index == 0 ) {
+  //   //set the base for the effect
+  //   for (n = 0; n < 30; n ++) {
+  //     pixels[n].br = _max_bright;
+  //     pixels[n].sat = 255;
+  //     pixels[n].hue = (n < 15) ? h_center + (15 - n) * 2: h_center - (n - 15) * 2;
+  //   }
+  // }
+  //
+  // for (n = 0; n < 30; n++ ) {
+  //   if (n < 15) {
+  //     pixels[n].br += (n == brn1)? pixels[n].br + 5: br - ((15 - n) * 2);)
+  //     pixels[n].br =
+  //     pixels[n].hue = ++h_center;
+  //   } else {
+  //     pixels[n].br = (n == brn2)? pixels[n].br + 5: br - ((n - 15) * 2);
+  //     pixels[n].hue = --h_center;
+  //   }
+  //   pixels[n].sat = 255;
+  // }
+  //
+  // if (frame_index % 2 == 0) {
+  //   brn1 = (brn1 == 0) ? 14 : brn1-1;
+  //   brn2 = (brn2 == 29) ? 15 : brn2+1;
+  //   //h_center++;
+  // }
 
 }
 
@@ -291,6 +328,8 @@ void Strip::nextFrame(char eff_index) {
   } else if (eff_index == 0x06) {
     _eff_6();
   } else if (eff_index == 0x07) {
+    _aurora2();
+  } else if (eff_index == 0x08) {
     _aurora();
   }
 
