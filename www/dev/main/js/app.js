@@ -58,7 +58,7 @@ const COLOR_WHEEL = (function() {
   var tabs = 3;
 
   function startWs() {
-    ws = new WebSocket('ws://192.168.0.26:1984');
+    ws = new WebSocket('ws://192.168.0.36:1984');
     ws.binaryType = 'arraybuffer';
 
     _id('overlay').style.visibility = 'visible';
@@ -104,6 +104,26 @@ const COLOR_WHEEL = (function() {
         showTab(ev.currentTarget.id + '_view');
       });
     }
+    // uv button
+    _id('uv').addEventListener('click', function(ev) {
+      var payload = new Uint8Array(3);
+
+      payload[0] = 0x08;
+      payload[1] = 0x00;
+      payload[2] = 0x00;
+
+      send(payload);
+    });
+    // uv button
+    _id('uv2').addEventListener('click', function(ev) {
+      var payload = new Uint8Array(3);
+
+      payload[0] = 0x09;
+      payload[1] = 0x00;
+      payload[2] = 0x00;
+
+      send(payload);
+    });
 
     // off button
     _id('off').addEventListener('click', function(ev) {

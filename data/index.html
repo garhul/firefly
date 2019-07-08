@@ -38,6 +38,7 @@
       <button data-cmd="0x04">Triad</button>
       <button data-cmd="0x05">Opposites</button>
       <button data-cmd="0x06">Breathe</button>
+      <button data-cmd="0x07">Aurora</button>
     </div>
   </div>
   <div id="tab2_view" class="content">
@@ -156,6 +157,15 @@
         _id('tab' + i).addEventListener('click', function(ev) {
           showTab(ev.currentTarget.id + '_view');
         });
+      }
+
+      // uv toggle button
+      _id('uv').addEventListener('click', function(ev) {
+        var payload = new Uint8Array(3);
+        payload[0] = 0x08;
+        payload[1] = 0x08;
+        payload[2] = 0x08;
+        send (payload);
       }
 
       // off button

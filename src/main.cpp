@@ -194,13 +194,15 @@ void beginAP() {
   WiFi.printDiag(Serial);
   USE_SERIAL.println(WiFi.softAPIP());
 
-  // if ( mdns.begin ( AP_DEVICE_NAME, WiFi.softAPIP() )) {
-  //   USE_SERIAL.println ( "MDNS responder started" );
-  // }
+  #if USE_MDNS
+   if ( mdns.begin ( AP_DEVICE_NAME, WiFi.softAPIP() )) {
+     USE_SERIAL.println ( "MDNS responder started" );
+   }
+  #endif
 }
 
 bool beginST() {
-  USE_SERIAL.println("starting station mode");
+  USE_SERIAL.println("Starting station mode");
   WiFi.mode(WIFI_STA);
   int attempts = 0;
 
@@ -241,10 +243,13 @@ bool beginST() {
   USE_SERIAL.println("Station startup successful");
   WiFi.printDiag(Serial);
 
-  // if (mdns.begin (ST_DEVICE_NAME, WiFi.localIP() ) ) {
-  //   USE_SERIAL.print ( "MDNS responder started" );
-  //   USE_SERIAL.println (WiFi.localIP());
-  // }
+  #if USE_MDNS
+    if (mdns.begin (ST_DEVICE_NAME, WiFi.localIP() ) ) {
+     USE_SERIAL.print ( "MDNS responder started" );
+    }
+  #endif
+
+  USE_SERIAL.println (WiFi.localIP());
 
   return true;
 }
@@ -273,12 +278,18 @@ void setup ( void ) {
 
   //initialize device controller
   rb.begin();
-  byte n[2] = {0x07, 0x07 }; //run awake test
-  rb.run(n, 2);
+  #if AWAKE_TEST
+    byte n[2] = { 0x07, 0x07 }; //run awake test
+    rb.run(n, 2);
+  #endif
+
 }
 
 void loop ( void ) {
-  // mdns.update();
+  #if USE_MDNS
+    mdns.update();
+  #endif
+
   server.handleClient();
   rb.service();
   webSocket.loop();

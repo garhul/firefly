@@ -1,8 +1,12 @@
 #include <NeoPixelBus.h>
 #include <WiFiUdp.h>
 #include <Strip.h>
-#define PORT 5000
+
+
+#define USE_UDP false
+#define UDP_PORT 5000
 #define BUFFER_SIZE 512 // in order to receive frames we need to specify such frames
+#define DEBUG true
 
 //*==== define commands =====**//
 #define CMD_SET_RANGE 0x01
@@ -14,6 +18,8 @@
 #define CMD_PLAY_ANIMATION 0x06
 #define CMD_SET_ANIMATION 0x07
 #define CMD_RUN_EFFECT 0x07
+#define CMD_UV_OFF 0x08
+#define CMD_UV_ON 0x09
 
 class Rainbow {
   public:

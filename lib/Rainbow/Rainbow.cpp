@@ -6,17 +6,19 @@ Rainbow::Rainbow() {
 }
 
 void Rainbow::begin() {
-  UDP.begin(PORT);
-  Panel.test();
+  #if USE_UDP
+    UDP.begin(UDP_PORT);
+  #endif
 }
 
 void Rainbow::run(byte data[], byte length) {
-
-  for (byte i = 0; i < length; i++) {
-    Serial.print(data[i],HEX);
-    Serial.print(" ");
-  }
-  Serial.println(" ");
+  #if DEBUG
+    for (byte i = 0; i < length; i++) {
+      Serial.print(data[i], HEX);
+      Serial.print(" ");
+    }
+    Serial.println(" ");
+  #endif
 
   if (data[0] == CMD_OFF) {
     Panel.clear();
@@ -39,25 +41,31 @@ void Rainbow::run(byte data[], byte length) {
     Panel.resetFrameCount();
     playing = true;
     eff_playing = data[1];
+  } else if (data[0] == CMD_UV_OFF) {
+    digitalWrite(D7, 0);
+  } else if (data[0] == CMD_UV_ON) {
+    digitalWrite(D7, 1);
   }
 
 }
 
-//TODO:: implement response for each command
-// Service endpoint,
 void Rainbow::service() {
-  int dataLength = UDP.parsePacket();
+  #if USE_UDP
+    int dataLength = UDP.parsePacket();
 
-  if (dataLength) {
-    UDP.read(data, dataLength); // read the packet into the buffer
-    run(data, dataLength);
+    if (dataLength) {
+      UDP.read(data, dataLength); // read the packet into the buffer
+      run(data, dataLength);
 
-    // send a response
-    UDP.beginPacket(UDP.remoteIP(), UDP.remotePort());
-    UDP.write("cmd ok");
-    UDP.endPacket();
+      // send a response
+      UDP.beginPacket(UDP.remoteIP(), UDP.remotePort());
+      UDP.write("cmd ok");
+      UDP.endPacket();
 
-  } else if (playing) {
+    }
+  #endif
+
+  if (playing) {
     Panel.nextFrame(eff_playing);
     delay(30); //around 30 fps is ok
   }

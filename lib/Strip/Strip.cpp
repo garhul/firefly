@@ -3,7 +3,7 @@
 
 //I tried but have no clue on how to properly extend this
 //btw this method only works for d4 pin
-NeoPixelBus<NeoGrbFeature, NeoEsp8266Uart800KbpsMethod> bus(STRIP_SIZE);
+NeoPixelBus<NeoGrbFeature, NeoEsp8266Dma800KbpsMethod> bus(STRIP_SIZE);
 
 Strip::Strip(){
   bus.Begin();
@@ -41,6 +41,10 @@ void Strip::test(){
     delay(TEST_DELAY);
     bus.SetPixelColor(i, RgbColor(0,0,0));
     bus.Show();
+    delay(TEST_DELAY);
+    digitalWrite(D7, LOW);
+    delay(TEST_DELAY);
+    digitalWrite(D7, HIGH);
     delay(TEST_DELAY);
   }
   //clear strip again
