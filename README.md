@@ -1,4 +1,4 @@
-## ----- outdated doc ----- ##
+## Project abandoned, see https://github.com/garhul/aurora instead ##
 
 # firefly
 
